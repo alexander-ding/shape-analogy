@@ -6,6 +6,7 @@
 #include <chrono>
 
 #include "mesh.h"
+#include <math.h>
 
 
 int main(int argc, char *argv[])
@@ -59,17 +60,18 @@ int main(int argc, char *argv[])
     // Switch on method
     if (method == "subdivide") {
         int numIterations = settings.value("Parameters/args1").toInt();
-
-        // TODO
-
+        for (int i = 0; i < numIterations; i++) {
+            m.loopSubdivide();
+        }
     } else if (method == "simplify") {
-
-        // TODO
-
+        int numFaces = settings.value("Parameters/args1").toInt();
+        int numEdges = round(static_cast<float>(numFaces) / 2.f);
+        m.quadricErrorSimplify(numEdges);
     } else if (method == "remesh") {
-
-        // TODO
-
+        int numIterations = settings.value("Parameters/args1").toInt();
+        for (int i = 0; i < numIterations; i++) {
+            m.isotropicRemesh();
+        }
     } else if (method == "noise") {
 
         // TODO

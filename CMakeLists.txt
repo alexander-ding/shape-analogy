@@ -20,31 +20,31 @@ find_package(Qt6 REQUIRED COMPONENTS Xml)
 
 # Specifies .cpp and .h files to be passed to the compiler
 add_executable(${PROJECT_NAME}
-    main.cpp
-    mesh.cpp
-    
-    mesh.h
-    util/tiny_obj_loader.h
+  main.cpp
+  mesh.cpp
+
+  mesh.h
+  util/tiny_obj_loader.h
 )
 
 # Specifies libraries to be linked (Qt components, glew, etc)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    Qt::Core
-    Qt::Gui
-    Qt::Xml
+  Qt::Core
+  Qt::Gui
+  Qt::Xml
 )
 
 # This allows you to `#include "Eigen/..."`
 target_include_directories(${PROJECT_NAME} PRIVATE
-    Eigen
+  Eigen
 )
 
 # Set this flag to silence warnings on Windows
-if (MSVC OR MSYS OR MINGW)
+if(MSVC OR MSYS OR MINGW)
   set(CMAKE_CXX_FLAGS "-Wno-volatile")
 endif()
 
 # Set this flag to silence warnings on MacOS
-if (APPLE)
+if(APPLE)
   set(CMAKE_CXX_FLAGS "-Wno-deprecated-volatile")
 endif()
