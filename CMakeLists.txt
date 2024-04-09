@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Sets project name
-project(mesh LANGUAGES CXX)
+project(shapeshifters LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -20,10 +20,9 @@ find_package(Qt6 REQUIRED COMPONENTS Xml)
 
 # Specifies .cpp and .h files to be passed to the compiler
 add_executable(${PROJECT_NAME}
-  main.cpp
-  mesh.cpp
-
-  mesh.h
+  src/main.cpp
+  src/mesh.cpp
+  src/mesh.h
   util/tiny_obj_loader.h
 )
 
