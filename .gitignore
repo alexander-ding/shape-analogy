@@ -4,7 +4,7 @@
 
 # Eigen and GLEW (so Gradescope submission is easier)
 Eigen/
-glew/
+# glew/
 
 # MacOS & clang files
 **/.DS_Store
