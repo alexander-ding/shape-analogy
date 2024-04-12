@@ -4,11 +4,30 @@
 #include <QKeyEvent>
 #include <QTime>
 #include <iostream>
+#include <unordered_set>
+
+#include "mesh.h"
 
 #define SPEED 1.5
 #define ROTATE_SPEED 0.0025
 
 using namespace std;
+
+// template<typename T>
+// struct matrix_hash : std::__unary_function<T, size_t> {
+//     std::size_t operator()(T const& matrix) const {
+//         // Note that it is oblivious to the storage order of Eigen matrix (column- or
+//         // row-major). It will give you the same hash value for two different matrices if they
+//         // are the transpose of each other in different storage order.
+//         size_t seed = 0;
+//         for (size_t i = 0; i < matrix.size(); ++i) {
+//             auto elem = *(matrix.data() + i);
+//             seed ^= std::hash<typename T::Scalar>()(elem) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+//         }
+//         return seed;
+//     }
+// };
+
 
 GLWidget::GLWidget(QWidget *parent) :
     QOpenGLWidget(parent),
@@ -17,6 +36,7 @@ GLWidget::GLWidget(QWidget *parent) :
     m_camera(),
     m_shader(),
     m_forward(),
+    m_sphere(),
     m_sideways(),
     m_vertical(),
     m_lastX(),
@@ -43,6 +63,8 @@ GLWidget::~GLWidget()
 
 // ================== Basic OpenGL Overrides
 
+
+
 void GLWidget::initializeGL()
 {
     // Initialize GL extension wrangler
@@ -61,6 +83,37 @@ void GLWidget::initializeGL()
 
     // Initialize the shader and simulation
     m_shader = new Shader(":/resources/shaders/shader.vert", ":/resources/shaders/shader.frag");
+    Mesh sphere("meshes/bunny.obj");
+    Mesh cube("meshes/icosahedron.obj");
+
+    Eigen::MatrixXf cubeNormals = cube.computeFaceNormals().transpose();
+    Eigen::MatrixXf sphereNormals = sphere.computeVertexNormals();
+    Eigen::MatrixXf sphereTargetNormals(3, sphereNormals.cols());
+    for (size_t i = 0; i < sphereNormals.cols(); i++) {
+        Eigen::VectorXf similarities = cubeNormals * sphereNormals.col(i);
+        size_t maxIndex;
+        similarities.maxCoeff(&maxIndex);
+        sphereTargetNormals.col(i) = cubeNormals.row(maxIndex);
+    }
+    Eigen::MatrixXf colors = (sphereTargetNormals.array() + 1.f) / 2.f;
+    m_sphere.init(sphere.getVertices(), sphereNormals, sphere.getFaces(), colors);
+
+
+    // std::vector<Vector3f> vertices;
+    // std::vector<Vector3i> faces;
+    // for (size_t i = 0; i < sphere.getVertices().cols(); i++) {
+    //     vertices.push_back(sphere.getVertices().col(i));
+    // }
+    // for (size_t i = 0; i < sphere.getFaces().cols(); i++) {
+    //     faces.push_back(sphere.getFaces().col(i));
+    // }
+
+
+
+
+
+
+   // m_sphere.init(sphere.getVertices(), sphere.computeFaceNormals(), sphere.getFaces());
 
     // Initialize camera with a reasonable transform
     Eigen::Vector3f eye    = {0, 2, -5};
@@ -79,6 +132,7 @@ void GLWidget::paintGL()
     m_shader->bind();
     m_shader->setUniform("proj", m_camera.getProjection());
     m_shader->setUniform("view", m_camera.getView());
+    this->m_sphere.draw(m_shader);
     m_shader->unbind();
 }
 

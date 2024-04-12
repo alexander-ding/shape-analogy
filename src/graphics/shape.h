@@ -13,12 +13,14 @@ class Shape
 public:
     Shape();
 
-    void init(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &normals, const std::vector<Eigen::Vector3i> &triangles);
-    void init(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &triangles);
-    void init(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &triangles, const std::vector<Eigen::Vector4i> &tetIndices);
+    void init(const Eigen::MatrixXf &vertices, const Eigen::MatrixXf &normals, const Eigen::MatrixXi &triangles, const Eigen::MatrixXf &colors);
 
-    void setVertices(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &normals);
-    void setVertices(const std::vector<Eigen::Vector3d>& vertices);
+    void init(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3f> &normals, const std::vector<Eigen::Vector3i> &triangles);
+    void init(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &triangles);
+    void init(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &triangles, const std::vector<Eigen::Vector4i> &tetIndices);
+
+    void setVertices(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3f> &normals);
+    void setVertices(const std::vector<Eigen::Vector3f>& vertices);
 
     std::vector<Eigen::Vector3i>& getFaces() {
         return this->m_faces;
@@ -52,8 +54,6 @@ private:
     std::vector<Eigen::Vector3i> m_faces;
 
     Eigen::Matrix4f m_modelMatrix;
-
-    bool m_wireframe;
 };
 
 #endif // SHAPE_H

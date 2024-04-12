@@ -11,6 +11,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <memory>
+#include "graphics/shape.h"
 
 class GLWidget : public QOpenGLWidget
 {
@@ -43,6 +44,7 @@ private:
     QTimer m_intervalTimer;            // For triggering timed events
 
     Camera m_camera;
+    Shape m_sphere;
     Shader *m_shader;
 
     int m_forward;

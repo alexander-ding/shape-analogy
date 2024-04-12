@@ -29,6 +29,7 @@ include_directories(libs)
 # Specifies .cpp and .h files to be passed to the compiler
 add_executable(${PROJECT_NAME}
   src/main.cpp
+  src/mainwindow.cpp
   src/mesh.cpp
   src/glwidget.cpp
   src/graphics/camera.cpp
@@ -37,6 +38,7 @@ add_executable(${PROJECT_NAME}
   src/graphics/shader.cpp
   src/graphics/shape.cpp
 
+  src/mainwindow.h
   src/mesh.h
   src/glwidget.h
   src/graphics/camera.h

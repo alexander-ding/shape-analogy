@@ -27,6 +27,9 @@ public:
         return this->m_faces;
     }
 
+    MatrixXf computeFaceNormals();
+    MatrixXf computeVertexNormals();
+
 private:
     void init(const MatrixXf &vertices, const MatrixXi &faces);
 

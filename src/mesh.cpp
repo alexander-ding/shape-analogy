@@ -104,3 +104,62 @@ void Mesh::saveToFile(const QString &path)
 
     outfile.close();
 }
+
+MatrixXf Mesh::computeFaceNormals()
+{
+    MatrixXf faceNormals(3, this->m_faces.cols());
+    for (size_t i = 0; i < this->m_faces.cols(); ++i)
+    {
+        // Assuming each face has three indices: idx1, idx2, idx
+        Vector3i indices = this->m_faces.col(i);
+
+        // Get the vertices from the indices
+        Vector3f v1 = this->m_vertices.col(indices[0]);
+        Vector3f v2 = this->m_vertices.col(indices[1]);
+        Vector3f v3 = this->m_vertices.col(indices[2]);
+
+        // Compute the two edges from the vertices
+        Vector3f edge1 = v2 - v1;
+        Vector3f edge2 = v3 - v1;
+
+        // Cross product of the two edges gives the normal
+        Vector3f normal = edge1.cross(edge2);
+        normal.normalize();
+
+        // Store the computed normal
+        faceNormals.col(i) = normal;
+    }
+    return faceNormals;
+}
+
+
+MatrixXf Mesh::computeVertexNormals()
+{
+    // Create a MatrixXf to store vertex normals. Initially, fill it with zeros.
+    MatrixXf vertexNormals(3, this->m_vertices.cols());
+    vertexNormals.setZero();
+
+    // Compute or retrieve face normals (assuming computeFaceNormals is available and correct)
+    MatrixXf faceNormals = this->computeFaceNormals();
+
+    // Accumulate normals for each vertex from each face
+    for (size_t i = 0; i < this->m_faces.cols(); ++i)
+    {
+        Vector3i indices = this->m_faces.col(i);
+        Vector3f normal = faceNormals.col(i);
+
+        // Add this normal to each of the vertices that make up the face
+        for (int j = 0; j < 3; ++j)  // Assuming triangular faces
+        {
+            vertexNormals.col(indices[j]) += normal;
+        }
+    }
+
+    // Normalize all vertex normals to convert them into unit vectors
+    for (size_t i = 0; i < vertexNormals.cols(); ++i)
+    {
+        vertexNormals.col(i).normalize();
+    }
+
+    return vertexNormals;
+}

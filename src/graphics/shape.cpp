@@ -5,17 +5,54 @@
 #include "graphics/shader.h"
 
 using namespace Eigen;
+using namespace std;
 
 Shape::Shape()
     : m_tetVao(-1),
       m_numSurfaceVertices(),
       m_verticesSize(),
-      m_modelMatrix(Eigen::Matrix4f::Identity()),
-      m_wireframe(false)
+      m_modelMatrix(Eigen::Matrix4f::Identity())
 {
 }
 
-void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &normals, const std::vector<Eigen::Vector3i> &triangles)
+
+void Shape::init(const Eigen::MatrixXf &vertices, const Eigen::MatrixXf &normals, const Eigen::MatrixXi &triangles, const Eigen::MatrixXf &colors)
+{
+    glGenBuffers(1, &m_surfaceVbo);
+    glGenBuffers(1, &m_surfaceIbo);
+    glGenVertexArrays(1, &m_surfaceVao);
+
+    // Bind Vertex Array Object
+    glBindVertexArray(m_surfaceVao);
+
+    // Upload Vertex Buffer Data
+    glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (vertices.size() + normals.size() + colors.size()), nullptr, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * vertices.size(), vertices.data());
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), sizeof(float) * normals.size(), normals.data());
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * (vertices.size() + normals.size()), sizeof(float) * colors.size(), colors.data());
+
+    // Set Vertex Attribute Pointers
+    glEnableVertexAttribArray(0); // Vertex positions
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(1); // Normal vectors
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(float) * vertices.size()));
+    glEnableVertexAttribArray(2); // Colors
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(float) * (vertices.size() + normals.size())));
+
+    // Upload Index Buffer Data
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_surfaceIbo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * triangles.size(), triangles.data(), GL_STATIC_DRAW);
+
+    // Unbind to avoid accidental modification
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    m_numSurfaceVertices = triangles.size();
+}
+
+void Shape::init(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3f> &normals, const std::vector<Eigen::Vector3i> &triangles)
 {
     if(vertices.size() != normals.size()) {
         std::cerr << "Vertices and normals are not the same size" << std::endl;
@@ -26,9 +63,9 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     glGenVertexArrays(1, &m_surfaceVao);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(double) * vertices.size() * 3 * 2, nullptr, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(double) * vertices.size() * 3, static_cast<const void *>(vertices.data()));
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(double) * vertices.size() * 3, sizeof(double) * vertices.size() * 3, static_cast<const void *>(normals.data()));
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size() * 3 * 2, nullptr, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * vertices.size() * 3, static_cast<const void *>(vertices.data()));
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size() * 3, sizeof(float) * vertices.size() * 3, static_cast<const void *>(normals.data()));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_surfaceIbo);
@@ -38,9 +75,9 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     glBindVertexArray(m_surfaceVao);
     glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 0, static_cast<GLvoid *>(0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, static_cast<GLvoid *>(0));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_DOUBLE, GL_FALSE, 0, reinterpret_cast<GLvoid *>(sizeof(double) * vertices.size() * 3));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(sizeof(float) * vertices.size() * 3));
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_surfaceIbo);
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -49,12 +86,16 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     m_numSurfaceVertices = triangles.size() * 3;
     m_verticesSize = vertices.size();
     m_faces = triangles;
+    m_red = 1;
+    m_green = 1;
+    m_blue = 1;
+    m_alpha = 1.f;
 }
 
-void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &triangles)
+void Shape::init(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &triangles)
 {
-    std::vector<Eigen::Vector3d> verts;
-    std::vector<Eigen::Vector3d> normals;
+    std::vector<Eigen::Vector3f> verts;
+    std::vector<Eigen::Vector3f> normals;
     std::vector<Eigen::Vector3i> faces;
     verts.reserve(triangles.size() * 3);
     normals.reserve(triangles.size() * 3);
@@ -79,9 +120,9 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     glGenVertexArrays(1, &m_surfaceVao);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(double) * verts.size() * 3 * 2, nullptr, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(double) * verts.size() * 3, static_cast<const void *>(verts.data()));
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(double) * verts.size() * 3, sizeof(double) * verts.size() * 3, static_cast<const void *>(normals.data()));
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * verts.size() * 3 * 2, nullptr, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * verts.size() * 3, static_cast<const void *>(verts.data()));
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * verts.size() * 3, sizeof(float) * verts.size() * 3, static_cast<const void *>(normals.data()));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_surfaceIbo);
@@ -91,9 +132,9 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     glBindVertexArray(m_surfaceVao);
     glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 0, static_cast<GLvoid *>(0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, static_cast<GLvoid *>(0));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_DOUBLE, GL_FALSE, 0, reinterpret_cast<GLvoid *>(sizeof(double) * verts.size() * 3));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(sizeof(float) * verts.size() * 3));
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_surfaceIbo);
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -120,7 +161,7 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
 //    m_alpha = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
-void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &triangles, const std::vector<Eigen::Vector4i> &tetIndices)
+void Shape::init(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3i> &triangles, const std::vector<Eigen::Vector4i> &tetIndices)
 {
     init(vertices, triangles);
 
@@ -138,7 +179,7 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     glGenVertexArrays(1, &m_tetVao);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_tetVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(double) * vertices.size() * 3, vertices.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size() * 3, vertices.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_tetIbo);
@@ -148,7 +189,7 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     glBindVertexArray(m_tetVao);
     glBindBuffer(GL_ARRAY_BUFFER, m_tetVbo);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 0, static_cast<GLvoid *>(0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, static_cast<GLvoid *>(0));
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_tetIbo);
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -157,14 +198,14 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     m_numTetVertices = lines.size() * 2;
 }
 
-void Shape::setVertices(const std::vector<Eigen::Vector3d> &vertices)
+void Shape::setVertices(const std::vector<Eigen::Vector3f> &vertices)
 {
     if(vertices.size() != m_verticesSize) {
         std::cerr << "You can't set vertices to a vector that is a different length that what shape was inited with" << std::endl;
         return;
     }
-    static std::vector<Eigen::Vector3d> verts(m_faces.size() * 3);
-    static std::vector<Eigen::Vector3d> normals(m_faces.size() * 3);
+    static std::vector<Eigen::Vector3f> verts(m_faces.size() * 3);
+    static std::vector<Eigen::Vector3f> normals(m_faces.size() * 3);
 
     #pragma omp parallel for
     for(size_t i = 0; i < m_faces.size(); i++) {
@@ -183,11 +224,11 @@ void Shape::setVertices(const std::vector<Eigen::Vector3d> &vertices)
         verts[3 * i + 2] = v3;
     }
     glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(double) * verts.size() * 3, static_cast<const void *>(verts.data()));
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(double) * verts.size() * 3, sizeof(double) * verts.size() * 3, static_cast<const void *>(normals.data()));
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * verts.size() * 3, static_cast<const void *>(verts.data()));
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * verts.size() * 3, sizeof(float) * verts.size() * 3, static_cast<const void *>(normals.data()));
     if(m_tetVao != static_cast<GLuint>(-1)) {
         glBindBuffer(GL_ARRAY_BUFFER, m_tetVbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(double) * vertices.size() * 3, static_cast<const void *>(vertices.data()));
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * vertices.size() * 3, static_cast<const void *>(vertices.data()));
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -199,10 +240,10 @@ void Shape::setModelMatrix(const Eigen::Affine3f &model)
 
 void Shape::toggleWireframe()
 {
-    m_wireframe = !m_wireframe;
+    // m_wireframe = !m_wireframe;
 }
 
-void Shape::setVertices(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &normals)
+void Shape::setVertices(const std::vector<Eigen::Vector3f> &vertices, const std::vector<Eigen::Vector3f> &normals)
 {
     if(vertices.size() != normals.size()) {
         std::cerr << "Vertices and normals are not the same size" << std::endl;
@@ -213,8 +254,8 @@ void Shape::setVertices(const std::vector<Eigen::Vector3d> &vertices, const std:
         return;
     }
     glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(double) * vertices.size() * 3, static_cast<const void *>(vertices.data()));
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(double) * vertices.size() * 3, sizeof(double) * vertices.size() * 3, static_cast<const void *>(normals.data()));
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * vertices.size() * 3, static_cast<const void *>(vertices.data()));
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size() * 3, sizeof(float) * vertices.size() * 3, static_cast<const void *>(normals.data()));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -223,27 +264,16 @@ void Shape::draw(Shader *shader)
     Eigen::Matrix3f m3 = m_modelMatrix.topLeftCorner(3, 3);
     Eigen::Matrix3f inverseTransposeModel = m3.inverse().transpose();
 
-    if(m_wireframe && m_tetVao != static_cast<GLuint>(-1)) {
-        shader->setUniform("wire", 1);
-        shader->setUniform("model", m_modelMatrix);
-        shader->setUniform("inverseTransposeModel", inverseTransposeModel);
-        shader->setUniform("red",   1);
-        shader->setUniform("green", 1);
-        shader->setUniform("blue",  1);
-        shader->setUniform("alpha", 1);
-        glBindVertexArray(m_tetVao);
-        glDrawElements(GL_LINES, m_numTetVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
-        glBindVertexArray(0);
-    } else {
-        shader->setUniform("wire", 0);
-        shader->setUniform("model", m_modelMatrix);
-        shader->setUniform("inverseTransposeModel", inverseTransposeModel);
-        shader->setUniform("red",   m_red);
-        shader->setUniform("green", m_green);
-        shader->setUniform("blue",  m_blue);
-        shader->setUniform("alpha", m_alpha);
-        glBindVertexArray(m_surfaceVao);
-        glDrawElements(GL_TRIANGLES, m_numSurfaceVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
-        glBindVertexArray(0);
-    }
+
+    shader->setUniform("model", m_modelMatrix);
+    shader->setUniform("inverseTransposeModel", inverseTransposeModel);
+    shader->setUniform("red",   m_red);
+    shader->setUniform("green", m_green);
+    shader->setUniform("blue",  m_blue);
+    shader->setUniform("alpha", m_alpha);
+    glBindVertexArray(m_surfaceVao);
+    glDrawElements(GL_TRIANGLES, m_numSurfaceVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
+    glBindVertexArray(0);
+
 }
+
