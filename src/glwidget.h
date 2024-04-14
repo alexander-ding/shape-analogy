@@ -11,6 +11,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <memory>
+#include "analogy.h"
 #include "graphics/shape.h"
 
 class GLWidget : public QOpenGLWidget
@@ -18,7 +19,7 @@ class GLWidget : public QOpenGLWidget
     Q_OBJECT
 
 public:
-    GLWidget(QWidget *parent = nullptr);
+    GLWidget(Analogy analogy, QWidget *parent = nullptr);
     ~GLWidget();
 
 private:
@@ -44,8 +45,10 @@ private:
     QTimer m_intervalTimer;            // For triggering timed events
 
     Camera m_camera;
-    Shape m_sphere;
+    Shape m_b;
+    Shape m_bPrime;
     Shader *m_shader;
+    Analogy m_analogy;
 
     int m_forward;
     int m_sideways;

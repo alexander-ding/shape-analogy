@@ -16,12 +16,26 @@ void Mesh::init(const MatrixXf &vertices, const MatrixXi &faces)
     this->m_faces = faces;
 }
 
-Mesh::Mesh(const MatrixXf &vertices, const MatrixXi &faces)
-{
-    this->init(vertices, faces);
+void Mesh::center() {
+    Eigen::VectorXf centroid = this->m_vertices.rowwise().mean().transpose();
+
+    // Step 2: Translate vertices to center them around the origin
+    Eigen::MatrixXf centeredVertices = this->m_vertices.colwise() - centroid;
+
+    // Step 3: Scale vertices to fit within [-1, 1]
+    float maxAbs = centeredVertices.cwiseAbs().maxCoeff(); // Get the maximum absolute value
+    centeredVertices /= maxAbs; // Scale to fit within the range
+
+    this->m_vertices = centeredVertices;
 }
 
-Mesh::Mesh(const QString &path)
+Mesh::Mesh(const MatrixXf &vertices, const MatrixXi &faces, bool center)
+{
+    this->init(vertices, faces);
+    if (center) this->center();
+}
+
+Mesh::Mesh(const QString &path, bool center)
 {
     tinyobj::attrib_t attrib;
     vector<tinyobj::shape_t> shapes;
@@ -77,6 +91,7 @@ Mesh::Mesh(const QString &path)
     }
 
     this->init(vertices, faces);
+    if (center) this->center();
     cout << "Loaded " << faces.cols() << " faces and " << vertices.cols() << " vertices" << endl;
 }
 

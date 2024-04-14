@@ -9,8 +9,8 @@ using namespace Eigen;
 class Mesh
 {
 public:
-    Mesh(const MatrixXf &vertices, const MatrixXi &faces);
-    Mesh(const QString &path);
+    Mesh(const MatrixXf &vertices, const MatrixXi &faces, bool center = true);
+    Mesh(const QString &path, bool center = true);
     ~Mesh();
 
     void saveToFile(const QString& path);
@@ -32,6 +32,7 @@ public:
 
 private:
     void init(const MatrixXf &vertices, const MatrixXi &faces);
+    void center();
 
     MatrixXf m_vertices;
     MatrixXi m_faces;

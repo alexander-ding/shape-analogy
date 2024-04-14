@@ -42,10 +42,8 @@ int main(int argc, char *argv[])
 
     Mesh aPrimeMesh(aPath);
     Mesh bMesh(bPath);
-    Mesh bPrimeMesh(bMesh);
-    // TODO: run algorithm
+    Analogy analogy(aPrimeMesh, bMesh);
 
-    bPrimeMesh.saveToFile(oPath);
 
     QApplication::setApplicationName("Shape Shifters");
     QApplication::setOrganizationName("CS 2240");
@@ -58,7 +56,7 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(fmt);
 
     // Create a GUI window
-    MainWindow w;
+    MainWindow w(analogy);
     w.resize(600, 500);
     int desktopArea = QGuiApplication::primaryScreen()->size().width() *
                       QGuiApplication::primaryScreen()->size().height();
