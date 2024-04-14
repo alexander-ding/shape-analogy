@@ -157,18 +157,36 @@ MatrixXf Mesh::computeVertexNormals()
     // Compute or retrieve face normals (assuming computeFaceNormals is available and correct)
     MatrixXf faceNormals = this->computeFaceNormals();
 
-    // Accumulate normals for each vertex from each face
+    // Accumulate weighted normals for each vertex from each face
     for (size_t i = 0; i < this->m_faces.cols(); ++i)
     {
         Vector3i indices = this->m_faces.col(i);
-        Vector3f normal = faceNormals.col(i);
 
-        // Add this normal to each of the vertices that make up the face
+        // Retrieve vertex positions for each index
+        Vector3f v0 = this->m_vertices.col(indices[0]);
+        Vector3f v1 = this->m_vertices.col(indices[1]);
+        Vector3f v2 = this->m_vertices.col(indices[2]);
+
+        // Compute edge vectors
+        Vector3f edge1 = v1 - v0;
+        Vector3f edge2 = v2 - v0;
+
+        // Compute the cross product of the edges to get a vector normal to the plane defined by the triangle
+        Vector3f crossProduct = edge1.cross(edge2);
+
+        // The area of the triangle is half the magnitude of the cross product
+        float area = 0.5f * crossProduct.norm();
+
+        // Normalize the cross product to get the face normal
+        Vector3f normal = faceNormals.col(i) * area; // Assuming computeFaceNormals produces normalized normals
+
+        // Add this weighted normal to each of the vertices that make up the face
         for (int j = 0; j < 3; ++j)  // Assuming triangular faces
         {
             vertexNormals.col(indices[j]) += normal;
         }
     }
+
 
     // Normalize all vertex normals to convert them into unit vectors
     for (size_t i = 0; i < vertexNormals.cols(); ++i)
