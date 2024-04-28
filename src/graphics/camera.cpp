@@ -38,6 +38,11 @@ void Camera::move(const Eigen::Vector3f &deltaPosition)
 
 }
 
+Eigen::Vector3f Camera::getPosition()
+{
+    return m_position;
+}
+
 // ================== Rotation
 
 void Camera::setRotation(float pitch, float yaw)

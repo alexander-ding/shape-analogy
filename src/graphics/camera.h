@@ -11,6 +11,8 @@ public:
     void setPosition(const Eigen::Vector3f      &position);
     void move       (const Eigen::Vector3f &deltaPosition);
 
+    Eigen::Vector3f getPosition();
+
     void setRotation(float      pitch, float      yaw);
     void rotate     (float deltaPitch, float deltaYaw);
 

@@ -31,7 +31,7 @@ add_executable(${PROJECT_NAME}
   src/main.cpp
   src/mainwindow.cpp
   src/mesh.cpp
-  src/glwidget.cpp
+  src/analogywidget.cpp
   src/graphics/camera.cpp
   src/graphics/graphicsdebug.cpp
 
@@ -40,7 +40,7 @@ add_executable(${PROJECT_NAME}
 
   src/mainwindow.h
   src/mesh.h
-  src/glwidget.h
+  src/analogywidget.h
   src/graphics/camera.h
   src/graphics/graphicsdebug.h
 
@@ -50,6 +50,9 @@ add_executable(${PROJECT_NAME}
   util/tiny_obj_loader.h
   util/unsupportedeigenthing/OpenGLSupport
   src/analogy.h src/analogy.cpp
+  src/editorwidget.h src/editorwidget.cpp
+
+  src/arap.h src/arap.cpp
 
 )
 
@@ -81,6 +84,13 @@ qt6_add_resources(${PROJECT_NAME} "Resources"
   FILES
   resources/shaders/shader.frag
   resources/shaders/shader.vert
+  resources/shaders/arapShader.frag
+  resources/shaders/arapShader.vert
+  resources/shaders/anchorPoint.frag
+  resources/shaders/anchorPoint.vert
+  resources/shaders/anchorPoint.geom
+
+
 )
 
 # GLEW: this provides support for Windows (including 64-bit)

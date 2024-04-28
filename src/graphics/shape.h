@@ -18,14 +18,18 @@ public:
     };
     void init(const Eigen::MatrixXf &vertices, const Eigen::MatrixXf &normals, const Eigen::MatrixXi &triangles, const Eigen::MatrixXf &colors);
 
-    void setVertices(const Eigen::MatrixXf& vertices, const Eigen::MatrixXf& normals);
+    void setVertices(const Eigen::MatrixXf& vertices, const Eigen::MatrixXf& normals, const Eigen::MatrixXf &colors);
+    inline void setVertices(const Eigen::MatrixXf &vertices, const Eigen::MatrixXf &normals) {
+        const Eigen::MatrixXf colors = Eigen::MatrixXf::Ones(vertices.rows(), vertices.cols()).array() / 2.f;
+        this->setVertices(vertices, normals, colors);
+    };
 
     Eigen::Matrix4f& getModelMatrix() {
         return this->m_modelMatrix;
     };
     void setModelMatrix(const Eigen::Affine3f &model) { m_modelMatrix = model.matrix(); };
 
-    void draw(Shader *shader);
+    void draw(Shader *shader, GLenum mode = GL_TRIANGLES);
 
 private:
     GLuint m_surfaceVao;

@@ -120,6 +120,11 @@ void Mesh::saveToFile(const QString &path)
     outfile.close();
 }
 
+void Mesh::setVertices(const MatrixXf &vertices)
+{
+    this->m_vertices = vertices;
+}
+
 MatrixXf Mesh::computeFaceNormals()
 {
     MatrixXf faceNormals(3, this->m_faces.cols());

@@ -43,31 +43,30 @@ int main(int argc, char *argv[])
     Mesh aPrimeMesh(aPath);
     Mesh bMesh(bPath);
     Analogy analogy(aPrimeMesh, bMesh);
-    analogy.computeBPrime(10);
-    analogy.getBPrime().saveToFile(oPath);
-    return 0;
+    // analogy.computeBPrime(10);
+    // analogy.getBPrime().saveToFile(oPath);
 
-    // QApplication::setApplicationName("Shape Shifters");
-    // QApplication::setOrganizationName("CS 2240");
-    // QApplication::setApplicationVersion(QT_VERSION_STR);
+    QApplication::setApplicationName("Shape Shifters");
+    QApplication::setOrganizationName("CS 2240");
+    QApplication::setApplicationVersion(QT_VERSION_STR);
 
-    // // Set OpenGL version to 4.1 and context to Core
-    // QSurfaceFormat fmt;
-    // fmt.setVersion(4, 1);
-    // fmt.setProfile(QSurfaceFormat::CoreProfile);
-    // QSurfaceFormat::setDefaultFormat(fmt);
+    // Set OpenGL version to 4.1 and context to Core
+    QSurfaceFormat fmt;
+    fmt.setVersion(4, 1);
+    fmt.setProfile(QSurfaceFormat::CoreProfile);
+    QSurfaceFormat::setDefaultFormat(fmt);
 
-    // // Create a GUI window
-    // MainWindow w(analogy);
-    // w.resize(600, 500);
-    // int desktopArea = QGuiApplication::primaryScreen()->size().width() *
-    //                   QGuiApplication::primaryScreen()->size().height();
-    // int widgetArea = w.width() * w.height();
-    // if (((float)widgetArea / (float)desktopArea) < 0.75f)
-    //     w.show();
-    // else
-    //     w.showMaximized();
+    // Create a GUI window
+    MainWindow w(analogy);
+    w.resize(1000, 500);
+    int desktopArea = QGuiApplication::primaryScreen()->size().width() *
+                      QGuiApplication::primaryScreen()->size().height();
+    int widgetArea = w.width() * w.height();
+    if (((float)widgetArea / (float)desktopArea) < 0.75f)
+        w.show();
+    else
+        w.showMaximized();
 
 
-    // return a.exec();
+    return a.exec();
 }

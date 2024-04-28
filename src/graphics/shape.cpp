@@ -46,15 +46,16 @@ void Shape::init(const Eigen::MatrixXf &vertices, const Eigen::MatrixXf &normals
     m_nTriangles = triangles.cols();
 }
 
-void Shape::setVertices(const Eigen::MatrixXf& vertices, const Eigen::MatrixXf& normals)
+void Shape::setVertices(const Eigen::MatrixXf& vertices, const Eigen::MatrixXf& normals, const Eigen::MatrixXf &colors)
 {
     glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * vertices.size(), vertices.data());
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), sizeof(float) * normals.size(), normals.data());
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float) * (vertices.size() + normals.size()), sizeof(float) * colors.size(), colors.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Shape::draw(Shader *shader)
+void Shape::draw(Shader *shader, GLenum mode)
 {
     Eigen::Matrix3f m3 = m_modelMatrix.topLeftCorner(3, 3);
     Eigen::Matrix3f inverseTransposeModel = m3.inverse().transpose();
@@ -63,7 +64,7 @@ void Shape::draw(Shader *shader)
     shader->setUniform("model", m_modelMatrix);
     shader->setUniform("inverseTransposeModel", inverseTransposeModel);
     glBindVertexArray(m_surfaceVao);
-    glDrawElements(GL_TRIANGLES, m_nTriangles * 3, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
+    glDrawElements(mode, m_nTriangles * 3, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
     glBindVertexArray(0);
 }
 

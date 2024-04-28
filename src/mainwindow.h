@@ -1,8 +1,10 @@
 #pragma once
 
 #include <QMainWindow>
-#include "glwidget.h"
+#include "analogywidget.h"
+#include "editorwidget.h"
 #include "analogy.h"
+#include "arap.h"
 
 class MainWindow : public QWidget
 {
@@ -13,6 +15,6 @@ public:
     ~MainWindow();
 
 private:
-
-    GLWidget *glWidget;
+    EditorWidget *editorWidget;
+    AnalogyWidget *analogyWidget;
 };

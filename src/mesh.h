@@ -20,7 +20,7 @@ public:
         return this->m_vertices;
     }
 
-    void setVertices(const Eigen::MatrixXf &vertices);
+    void setVertices(const MatrixXf &vertices);
 
     MatrixXi &getFaces()
     {

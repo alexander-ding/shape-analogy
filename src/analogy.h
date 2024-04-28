@@ -15,6 +15,8 @@ public:
     Analogy(Mesh aPrime, Mesh b);
 
     Mesh& getAPrime() {return this->m_aPrime;}
+    void setAPrime(const Mesh& aPrime) {this->m_aPrime = aPrime;}
+
     Mesh& getB() {return this->m_b;}
     Mesh& getBPrime() {return this->m_bPrime;}
     Eigen::MatrixXf& getBTargetNormals() { return this->m_bTargetNormals; }

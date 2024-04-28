@@ -24,7 +24,7 @@ void Analogy::computeBPrime(float lambda)
     std::vector<Eigen::Matrix3f> Rs(edgeWeights.size(), Eigen::Matrix3f::Identity());
 
     float prevError = std::numeric_limits<float>::max();
-    while (true) {
+    for (size_t iter = 0; iter < 50; iter++) {
         for (size_t i = 0; i < nVertices; i++) {
             Matrix3f S = Matrix3f::Zero();
             for (auto [j, weight] : edgeWeights[i]) {

@@ -14,13 +14,16 @@
 #include "analogy.h"
 #include "graphics/shape.h"
 
-class GLWidget : public QOpenGLWidget
+class AnalogyWidget : public QOpenGLWidget
 {
     Q_OBJECT
 
 public:
-    GLWidget(Analogy analogy, QWidget *parent = nullptr);
-    ~GLWidget();
+    AnalogyWidget(Analogy analogy, QWidget *parent = nullptr);
+    ~AnalogyWidget();
+
+    Analogy& getAnalogy() { return this->m_analogy; }
+    void syncAnalogy();
 
 private:
     static const int FRAMES_TO_AVERAGE = 60;
@@ -50,9 +53,9 @@ private:
     Shader *m_shader;
     Analogy m_analogy;
 
-    int m_forward;
-    int m_sideways;
-    int m_vertical;
+    float m_forward;
+    float m_sideways;
+    float m_vertical;
 
     int m_lastX;
     int m_lastY;
