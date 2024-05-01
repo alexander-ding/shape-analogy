@@ -9,6 +9,7 @@
 #define SPEED 1.5
 #define ROTATE_SPEED 0.0025
 #define PUSH_SPEED 0.005
+#define MAX_RADIUS 0.5f
 
 using namespace std;
 using namespace Eigen;
@@ -222,6 +223,16 @@ void EditorWidget::mousePressEvent(QMouseEvent *event)
             m_push = PUSH_SPEED;
             break;
         }
+        case HAMMER: {
+            Intersection shapeIntersect = m_arap.intersectMesh(start, ray);
+            if (!shapeIntersect.hit) {
+                break;
+            }
+
+            float normalizedRadius = settings.radius / 200.f;
+            m_arap.hammer(shapeIntersect.position, normalizedRadius);
+            break;
+        }
         default:
             break;
         }
@@ -238,7 +249,6 @@ void EditorWidget::mousePressEvent(QMouseEvent *event)
         case ARAP:
             // Select this vertex
             m_lastSelectedVertex = closest_vertex;
-        case PUSH:
         default:
             break;
         }
@@ -329,7 +339,7 @@ void EditorWidget::mouseReleaseEvent(QMouseEvent *event)
     m_rightClickSelectMode = SelectMode::None;
     bool isValid = this->m_arap.invalidate();
     if (isValid && this->m_onUpdate) {
-        cout << "updating" << endl;
+        // cout << "updating" << endl;
         this->m_onUpdate(this);
     }
 }

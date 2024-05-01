@@ -21,6 +21,8 @@ private:
 
     void addHeading(QBoxLayout *layout, QString text);
     void addRadioButton(QBoxLayout *layout, QString text, bool value, auto function);
+    void addSlider(QBoxLayout *layout, QString text, int minVal, int maxVal, int defaultVal, auto function);
 
     void setMode(int type);
+    void setHammerRadius(int radius);
 };

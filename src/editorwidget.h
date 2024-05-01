@@ -75,6 +75,9 @@ private:
     Vector3f m_push_direction;
     Vector3f m_push_position;
 
+    // Hammer
+    Vector3f m_hammer_position;
+
     // Mouse handler stuff
     int m_lastX;
     int m_lastY;

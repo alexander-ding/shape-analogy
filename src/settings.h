@@ -11,6 +11,7 @@ enum Mode {
 
 struct Settings {
     int mode;
+    float radius;
     void loadSettingsOrDefaults();
 };
 

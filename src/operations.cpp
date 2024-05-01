@@ -1,8 +1,10 @@
 #include "arap.h"
 #include "mesh.h"
 
+#include <iostream>
 #include <limits>
 #include <QtConcurrent>
+#include <cmath>
 
 using namespace std;
 using namespace Eigen;
@@ -29,6 +31,46 @@ void ARAP::push(Vector3f position, Vector3f direction) {
 
         vertices.col(i) = pointOnPlane;
     }
+
+    this->m_mesh.setVertices(vertices);
+}
+
+void ARAP::hammer(Vector3f position, float radius) {
+    // std::cout << "hammering" << std::endl;
+    if (!this->m_isValid) this->build();
+
+    // std::cout << position.norm() << std::endl; // this is 1
+
+    MatrixXf vertices = this->m_mesh.getVertices();
+    // std::cout << vertices.rowwise().mean() << std::endl;
+
+    Vector3f projectDir = -position.normalized();
+
+    for (size_t i = 0; i < vertices.cols(); i++) {
+        Vector3f vertex = vertices.col(i);
+
+        Vector3f vertexToCenter = position - vertex;
+        float vertexDist = vertexToCenter.norm();
+        if (vertexDist > radius) {
+            continue;
+        }
+
+        Vector3f dirToCenter = vertexToCenter.normalized();
+
+        float b = vertexDist;
+        float c = radius;
+        float cosineC = projectDir.dot(dirToCenter);
+        float C = acos(cosineC);
+        float sineC = (projectDir.cross(dirToCenter)).norm();
+        float B = asin(b * sineC / c);
+        float A = M_PI - B - C;
+
+        float a = sqrt(b*b + c*c - 2 * b * c * cos(A));
+
+        Vector3f pointOnSphere = vertex + projectDir * a;
+        vertices.col(i) = pointOnSphere;
+    }
+
 
     this->m_mesh.setVertices(vertices);
 }

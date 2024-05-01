@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QRadioButton>
+#include <QSlider>
 #include "analogy.h"
 #include "mesh.h"
 #include "editorwidget.h"
@@ -41,6 +42,7 @@ MainWindow::MainWindow(Analogy analogy)
     addRadioButton(vLayout, "ARAP", settings.mode == ARAP, [this]{ setMode(ARAP); });
     addRadioButton(vLayout, "Push", settings.mode == PUSH, [this]{ setMode(PUSH); });
     addRadioButton(vLayout, "Hammer", settings.mode == HAMMER, [this]{ setMode(HAMMER); });
+    addSlider(vLayout, "Hammer Radius", 1, 100, 50, [this](int value) { setHammerRadius(value); });
 }
 
 MainWindow::~MainWindow()
@@ -66,9 +68,30 @@ void MainWindow::addRadioButton(QBoxLayout *layout, QString text, bool value, au
     connect(button, &QRadioButton::clicked, this, function);
 }
 
+void MainWindow::addSlider(QBoxLayout *layout, QString text, int minVal, int maxVal, int defaultVal, auto function) {
+    QLabel *label = new QLabel(text);
+    QSlider *slider = new QSlider(Qt::Horizontal);
+    QLabel *valueLabel = new QLabel(QString::number(defaultVal));
+
+    slider->setRange(minVal, maxVal);
+    slider->setValue(defaultVal);
+
+    layout->addWidget(label);
+    layout->addWidget(slider);
+    layout->addWidget(valueLabel);
+
+    connect(slider, &QSlider::valueChanged, this, [=](int value){
+        function(value);
+        valueLabel->setText(QString::number(value)); // Update value label
+    });
+}
+
 void MainWindow::setMode(int type) {
     settings.mode = type;
     // m_canvas->settingsChanged();
 }
 
+void MainWindow::setHammerRadius(int radius) {
+    settings.radius = float(radius);
+}
 
