@@ -7,10 +7,12 @@ from scipy.interpolate import interp1d
 
 TIMESTEP = 40
 MODEL_NAME = "" # your model name here (e.g. yoda)
+B_PRIME = "" # path to b_prime
+B_MESH = "" # path to b
 
 # load in b and bprime
-b_prime = trimesh.load(f'/Users/jean/Documents/shapeshifter/meshes/yoda-tetrahedron.obj', maintain_order=True)
-b = trimesh.load(f'/Users/jean/Documents/shapeshifter/meshes/yoda.obj', maintain_order=True)
+b_prime = trimesh.load(B_PRIME, maintain_order=True)
+b = trimesh.load(B_MESH, maintain_order=True)
 b_copy = b.copy()
 
 # convert verts to numpy array 
