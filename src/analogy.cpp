@@ -2,8 +2,8 @@
 #include <iostream>
 #include <limits>
 
-Analogy::Analogy(Mesh aPrime, Mesh b)
-    : m_aPrime(aPrime), m_b(b), m_bPrime(b)
+Analogy::Analogy(Mesh aPrime, Mesh b, Mesh aPrimeCache)
+    : m_aPrime(aPrime), m_b(b), m_bPrime(b), m_aPrimeCache(aPrimeCache)
 {
 
 }
@@ -70,22 +70,45 @@ void Analogy::computeBPrime(float lambda)
     }
 }
 
-MatrixXf Analogy::computeTargetNormals()
+MatrixXf Analogy::computeTargetNormals() // between B and initial sphere
 {
     // n x 3
-    Eigen::MatrixXf aPrimeNormals = this->m_aPrime.computeFaceNormals().transpose();
+    Eigen::MatrixXf aPrimeNormals = this->m_aPrimeCache.computeFaceNormals().transpose();
     // 3 x m
     Eigen::MatrixXf bNormals = this->m_b.computeVertexNormals();
     // n x m
     Eigen::MatrixXf similarities = aPrimeNormals * bNormals;
+    // 1 x m
+    Eigen::VectorXi closestFaceIdx(bNormals.cols()); // b vertex -> face index on sphere mesh that's closest to it
+    Eigen::MatrixXf aPrimeDeformedNormals = this->m_aPrime.computeFaceNormals().transpose();
+
+
     // m x n
     for (size_t i = 0; i < bNormals.cols(); i++) {
         size_t maxIndex;
         similarities.col(i).maxCoeff(&maxIndex);
-        bNormals.col(i) = aPrimeNormals.row(maxIndex);
+        closestFaceIdx(i) = maxIndex;
+        bNormals.col(i) = aPrimeDeformedNormals.row(maxIndex);
     }
     return bNormals;
 }
+
+//MatrixXf computeTargetNormalsOld()
+//{
+//    // n x 3
+//    Eigen::MatrixXf aPrimeNormals = this->m_aPrime.computeFaceNormals().transpose();
+//    // 3 x m
+//    Eigen::MatrixXf bNormals = this->m_b.computeVertexNormals();
+//    // n x m
+//    Eigen::MatrixXf similarities = aPrimeNormals * bNormals;
+//    // m x n
+//    for (size_t i = 0; i < bNormals.cols(); i++) {
+//        size_t maxIndex;
+//        similarities.col(i).maxCoeff(&maxIndex);
+//        bNormals.col(i) = aPrimeNormals.row(maxIndex);
+//    }
+//    return bNormals;
+//}
 
 inline float triangleArea(const Eigen::Vector3f& v1, const Eigen::Vector3f& v2, const Eigen::Vector3f& v3) {
     return 0.5 * (v2 - v1).cross(v3 - v1).norm();
