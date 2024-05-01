@@ -32,6 +32,7 @@ private:
     Mesh m_aPrime;
     Mesh m_b;
     Mesh m_aPrimeCache;
+    Eigen::MatrixXf m_tessellatedSphereNormals;
 };
 
 #endif // ANALOGY_H

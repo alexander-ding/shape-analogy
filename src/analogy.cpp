@@ -5,7 +5,7 @@
 Analogy::Analogy(Mesh aPrime, Mesh b, Mesh aPrimeCache)
     : m_aPrime(aPrime), m_b(b), m_bPrime(b), m_aPrimeCache(aPrimeCache)
 {
-
+    this->m_tessellatedSphereNormals = this->m_aPrimeCache.computeFaceNormals().transpose();
 }
 
 void Analogy::computeBPrime(float lambda)
@@ -73,7 +73,7 @@ void Analogy::computeBPrime(float lambda)
 MatrixXf Analogy::computeTargetNormals() // between B and initial sphere
 {
     // n x 3
-    Eigen::MatrixXf aPrimeNormals = this->m_aPrimeCache.computeFaceNormals().transpose();
+    Eigen::MatrixXf aPrimeNormals = m_tessellatedSphereNormals; // cached
     // 3 x m
     Eigen::MatrixXf bNormals = this->m_b.computeVertexNormals();
     // n x m
