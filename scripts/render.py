@@ -8,8 +8,8 @@ import shutil
 model = "" # your model name here (e.g. "yoda")
 
 def render_images(obj_filepath, ctr, path_to_pngs):
-    spot_trimesh = trimesh.load(f'/Users/jean/Documents/shapeshifter/{model}/{obj_filepath}')
-    mesh = pyrender.Mesh.from_trimesh(spot_trimesh)
+    model_trimesh = trimesh.load(obj_filepath)
+    mesh = pyrender.Mesh.from_trimesh(model_trimesh)
 
     # compose scene
     scene = pyrender.Scene(ambient_light=[.1, .1, .3], bg_color=[0, 0, 0])
@@ -65,7 +65,6 @@ if __name__ == "__main__":
     
     ctr = 0
     for obj_file in file_paths: 
-        print(obj_file)
         try:
             render_images(obj_file, ctr, path_to_pngs)
             ctr += 1
