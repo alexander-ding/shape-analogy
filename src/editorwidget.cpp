@@ -215,7 +215,7 @@ void EditorWidget::mousePressEvent(QMouseEvent *event)
                 break;
             }
 
-            std::cout << "hit at: " << shapeIntersect.position << std::endl;
+            // std::cout << "hit at: " << shapeIntersect.position << std::endl;
 
             m_push_position = shapeIntersect.position;
             m_push_direction = -shapeIntersect.normal;

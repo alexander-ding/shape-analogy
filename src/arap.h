@@ -52,4 +52,5 @@ public:
 
     Intersection intersectMesh(Vector3f start, Vector3f ray);
     void push(Vector3f position, Vector3f direction);
+    void hammer(Vector3f position, float radius);
 };
