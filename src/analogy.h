@@ -12,7 +12,7 @@
 class Analogy
 {
 public:
-    Analogy(Mesh aPrime, Mesh b);
+    Analogy(Mesh aPrime, Mesh b, Mesh aPrimeCache);
 
     Mesh& getAPrime() {return this->m_aPrime;}
     void setAPrime(const Mesh& aPrime) {this->m_aPrime = aPrime;}
@@ -31,6 +31,7 @@ private:
     Mesh m_bPrime;
     Mesh m_aPrime;
     Mesh m_b;
+    Mesh m_aPrimeCache;
 };
 
 #endif // ANALOGY_H

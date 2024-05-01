@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mesh.h"
+#include <unordered_map>
 #include <unordered_set>
 #include <Eigen/Sparse>
 #include <Eigen/Cholesky>
