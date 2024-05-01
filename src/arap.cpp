@@ -100,7 +100,7 @@ inline QVector<int> range(int start, int end)
 void ARAP::move(int vertex, Vector3f targetPosition)
 {
     if (!this->m_isValid) this->build();
-    std::cout << "Processing move" << std::endl;
+    // std::cout << "Processing move" << std::endl;
 
     MatrixXf newVertices = this->m_mesh.getVertices();
     std::vector<Matrix3f> Rs(newVertices.cols(), Matrix3f::Identity());

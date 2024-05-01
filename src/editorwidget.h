@@ -70,6 +70,11 @@ private:
     float m_sideways;
     float m_vertical;
 
+    // Pushing
+    float m_push;
+    Vector3f m_push_direction;
+    Vector3f m_push_position;
+
     // Mouse handler stuff
     int m_lastX;
     int m_lastY;

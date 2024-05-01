@@ -12,6 +12,14 @@ enum SelectMode
     Unanchor = 2
 };
 
+struct Intersection
+{
+    bool hit;
+    Vector3f position;
+    Vector3f normal;
+    float t;
+};
+
 class ARAP
 {
 private:
@@ -20,6 +28,7 @@ private:
     std::unordered_set<int> m_anchors;
     std::vector<std::unordered_map<int, float>> m_vertexEdges;
     Eigen::SimplicialLDLT<Eigen::SparseMatrix<float>> m_solver;
+    Intersection intersectTriangle(const Vector3f& start, const Vector3f& ray, const VectorXi& face);
 
     void build();
 public:
@@ -39,4 +48,7 @@ public:
                             Eigen::Vector3f& pos,
                             Eigen::Vector3f  ray,
                             Eigen::Vector3f  start);
+
+    Intersection intersectMesh(Vector3f start, Vector3f ray);
+    void push(Vector3f position, Vector3f direction);
 };

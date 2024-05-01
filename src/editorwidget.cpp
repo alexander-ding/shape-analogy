@@ -1,5 +1,6 @@
 #include "editorwidget.h"
 #include "arap.h"
+#include "settings.h"
 
 #include <QApplication>
 #include <QKeyEvent>
@@ -7,6 +8,7 @@
 
 #define SPEED 1.5
 #define ROTATE_SPEED 0.0025
+#define PUSH_SPEED 0.005
 
 using namespace std;
 using namespace Eigen;
@@ -189,7 +191,10 @@ void EditorWidget::mousePressEvent(QMouseEvent *event)
 
     // Get closest vertex to ray
     const Vector3f ray = transformToWorldRay(currX, currY);
-    const int closest_vertex = m_arap.getClosestVertex(m_camera.getPosition(), ray, m_vertexSelectionThreshold);
+
+    const Vector3f start = m_camera.getPosition();
+
+    const int closest_vertex = m_arap.getClosestVertex(start, ray, m_vertexSelectionThreshold);
 
     // Switch on button
     switch (event->button())
@@ -198,17 +203,45 @@ void EditorWidget::mousePressEvent(QMouseEvent *event)
     {
         // Capture
         m_rightCapture = true;
-        // Anchor/un-anchor the vertex
-        m_rightClickSelectMode = m_arap.select(closest_vertex);
+
+        switch (settings.mode) {
+        case ARAP:
+            // Anchor/un-anchor the vertex
+            m_rightClickSelectMode = m_arap.select(closest_vertex);
+            break;
+        case PUSH: {
+            Intersection shapeIntersect = m_arap.intersectMesh(start, ray);
+            if (!shapeIntersect.hit) {
+                break;
+            }
+
+            std::cout << "hit at: " << shapeIntersect.position << std::endl;
+
+            m_push_position = shapeIntersect.position;
+            m_push_direction = -shapeIntersect.normal;
+            m_push = PUSH_SPEED;
+            break;
+        }
+        default:
+            break;
+        }
+
         syncShape();
+
         break;
     }
     case Qt::MouseButton::LeftButton:
     {
         // Capture
         m_leftCapture = true;
-        // Select this vertex
-        m_lastSelectedVertex = closest_vertex;
+        switch (settings.mode) {
+        case ARAP:
+            // Select this vertex
+            m_lastSelectedVertex = closest_vertex;
+        case PUSH:
+        default:
+            break;
+        }
         break;
     }
     default:
@@ -237,7 +270,7 @@ void EditorWidget::mouseMoveEvent(QMouseEvent *event)
     Vector3f pos;
 
     // If right is held down
-    if (m_rightCapture)
+    if (settings.mode == ARAP && m_rightCapture)
     {
         // Get closest vertex to ray
         const int closest_vertex = m_arap.getClosestVertex(m_camera.getPosition(), ray, m_vertexSelectionThreshold);
@@ -258,7 +291,7 @@ void EditorWidget::mouseMoveEvent(QMouseEvent *event)
     }
 
     // If the selected point is an anchor point
-    if (m_lastSelectedVertex != -1 && m_arap.getAnchorPos(m_lastSelectedVertex, pos, ray, m_camera.getPosition()))
+    if (settings.mode == ARAP && m_lastSelectedVertex != -1 && m_arap.getAnchorPos(m_lastSelectedVertex, pos, ray, m_camera.getPosition()))
     {
         // Move it
         m_arap.move(m_lastSelectedVertex, pos);
@@ -266,6 +299,11 @@ void EditorWidget::mouseMoveEvent(QMouseEvent *event)
     }
     else
     {
+        if (settings.mode == PUSH && m_rightCapture) {
+            m_lastX = currX;
+            m_lastY = currY;
+            return;
+        }
         // Rotate the camera
         const int deltaX = currX - m_lastX;
         const int deltaY = currY - m_lastY;
@@ -285,10 +323,13 @@ void EditorWidget::mouseReleaseEvent(QMouseEvent *event)
     m_leftCapture = false;
     m_lastSelectedVertex = -1;
 
+    m_push = 0;
+
     m_rightCapture = false;
     m_rightClickSelectMode = SelectMode::None;
     bool isValid = this->m_arap.invalidate();
     if (isValid && this->m_onUpdate) {
+        cout << "updating" << endl;
         this->m_onUpdate(this);
     }
 }
@@ -335,6 +376,7 @@ void EditorWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Escape:
         QApplication::quit();
+
     }
 }
 
@@ -396,6 +438,13 @@ void EditorWidget::tick()
     moveVec *= m_movementScaling;
     moveVec *= deltaSeconds;
     m_camera.move(moveVec);
+
+    if (settings.mode == PUSH && m_push > 0) {
+
+        m_push_position += m_push * m_push_direction;
+        m_arap.push(m_push_position, m_push_direction);
+        syncShape();
+    }
 
     // Flag this view for repainting (Qt will call paintGL() soon after)
     update();

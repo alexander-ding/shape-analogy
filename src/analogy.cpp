@@ -61,7 +61,7 @@ void Analogy::computeBPrime(float lambda)
         newVertices = solver->solve(b).transpose();
 
         float error = (newVertices - prevVertices).norm();
-        std::cout << error << std::endl;
+        // std::cout << error << std::endl;
         // threshold
         if (error < 1e-2) {
             break;

@@ -53,6 +53,8 @@ add_executable(${PROJECT_NAME}
   src/editorwidget.h src/editorwidget.cpp
 
   src/arap.h src/arap.cpp
+  src/settings.h src/settings.cpp
+  src/operations.cpp
 
 )
 
