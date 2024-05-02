@@ -20,7 +20,7 @@ public:
     Mesh& getB() {return this->m_b;}
     Mesh& getBPrime() {return this->m_bPrime;}
     Eigen::MatrixXf& getBTargetNormals() { return this->m_bTargetNormals; }
-    void computeBPrime(float lambda = 1);
+    void computeBPrime(float lambda = 100);
 private:
     Eigen::MatrixXf computeTargetNormals();
     Eigen::VectorXf computeVoronoiAreas();

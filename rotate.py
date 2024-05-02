@@ -23,8 +23,8 @@ def rotate_obj_file(input_path, output_path, angle):
                 file.write(line)
 
 # Example usage
-input_obj_path = 'meshes/tetrahedron.obj'  # Path to your original OBJ file
-output_obj_path = 'meshes/tetrahedron-rotated.obj'  # Path to save the rotated OBJ file
-rotate_angle = 45  # Angle in degrees
+input_obj_path = 'meshes/moai.obj'  # Path to your original OBJ file
+output_obj_path = 'meshes/moai-rotated.obj'  # Path to save the rotated OBJ file
+rotate_angle = 180  # Angle in degrees
 
 rotate_obj_file(input_obj_path, output_obj_path, rotate_angle)
