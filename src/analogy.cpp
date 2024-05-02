@@ -70,6 +70,59 @@ void Analogy::computeBPrime(float lambda)
     }
 }
 
+/**
+ * @brief barycentricInterpolation get normal at projected point p using barycentric interpolation
+ * @return interpolated normal at point p if it lies inside the triangle, else the triangle face's normal
+ */
+Eigen::VectorXf barycentricInterpolation(Vector3f& p, Vector3f& vert1, Vector3f& vert2, Vector3f& vert3,
+                                        Vector3f& n1, Vector3f& n2, Vector3f& n3, Eigen::VectorXf& faceNormal) {
+    Vector3f v0 = vert2 - vert1;
+    Vector3f v1 = vert3 - vert1;
+    Vector3f v2 = p - vert1;
+    float d00 = v0.dot(v0);
+    float d01 = v0.dot(v1);
+    float d11 = v1.dot(v1);
+    float d20 = v2.dot(v0);
+    float d21 = v2.dot(v1);
+    float denom = d00 * d11 - d01 * d01;
+    float v = (d11 * d20 - d01 * d21) / denom;
+    float w = (d00 * d21 - d01 * d20) / denom;
+    float u = 1.f - v - w;
+    // if projected point lies inside the triangle, use barycentric interpolation
+    if ((v >= 0) && (w >= 0) && (v + w <= 1)) {
+        Vector3f interpolated_normal = (u * n1 + v * n2 + w * n3).normalized();
+        return interpolated_normal;
+    } else { // else just approximate with the face normal
+        return faceNormal;
+    }
+}
+
+/**
+ * @brief projectAndInterpolate orthogonal projection onto plane defined by triangle face, then barycentric interpolation
+ * @return interpolated normal at point projected onto triangle face plane
+ */
+Eigen::VectorXf projectAndInterpolate(Eigen::VectorXf& p, Eigen::Vector3i& indices, Eigen::MatrixXf& vertices,
+                                Eigen::MatrixXf& vertNormals, Eigen::VectorXf& faceNormal) {
+    Eigen::Vector3f v0 = vertices.col(indices[0]);
+    Eigen::Vector3f v1 = vertices.col(indices[1]);
+    Eigen::Vector3f v2 = vertices.col(indices[2]);
+
+    // Calculate the normal vector of the plane
+    Vector3f n = -((v1 - v0).cross(v2 - v0).normalized());
+    // vector from point on plane to point on our unit sphere
+    Vector3f P = p - v0;
+    // project the vector onto plane normal
+    Vector3f proj = (P.dot(n) / n.squaredNorm()) * n;
+    // project the point onto the plane
+    Vector3f projectedPoint = p - proj;
+    // vert normals
+    Vector3f n0 = vertNormals.col(indices[0]);
+    Vector3f n1 = vertNormals.col(indices[1]);
+    Vector3f n2 = vertNormals.col(indices[2]);
+
+    return barycentricInterpolation(projectedPoint, v0, v1, v2, n0, n1, n2, faceNormal);
+}
+
 MatrixXf Analogy::computeTargetNormals() // between B and initial sphere
 {
     // n x 3
@@ -79,16 +132,20 @@ MatrixXf Analogy::computeTargetNormals() // between B and initial sphere
     // n x m
     Eigen::MatrixXf similarities = aPrimeNormals * bNormals;
     // 1 x m
-    Eigen::VectorXi closestFaceIdx(bNormals.cols()); // b vertex -> face index on sphere mesh that's closest to it
     Eigen::MatrixXf aPrimeDeformedNormals = this->m_aPrime.computeFaceNormals().transpose();
 
+    Eigen::MatrixXi faces = this->m_aPrimeCache.getFaces();
+    Eigen::MatrixXf vertNormals = this->m_aPrime.computeVertexNormals();
+    Eigen::MatrixXf vertices = this->m_aPrimeCache.getVertices();
 
     // m x n
     for (size_t i = 0; i < bNormals.cols(); i++) {
         size_t maxIndex;
         similarities.col(i).maxCoeff(&maxIndex);
-        closestFaceIdx(i) = maxIndex;
-        bNormals.col(i) = aPrimeDeformedNormals.row(maxIndex);
+        Vector3i indices = faces.col(maxIndex); // closest face vert
+        VectorXf p = bNormals.col(i); // point on unit sphere
+        VectorXf faceNormal = aPrimeDeformedNormals.row(maxIndex); // use if projection is not inside triangle
+        bNormals.col(i) = projectAndInterpolate(p, indices, vertices, vertNormals, faceNormal);
     }
     return bNormals;
 }
