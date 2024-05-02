@@ -8,6 +8,9 @@ from pathlib import Path
 
 def render_image(obj_path, output_path):
     obj = trimesh.load(obj_path)
+    obj.apply_transform(trimesh.transformations.rotation_matrix(
+        np.pi, [0, 1, 0], [0, 0, 0]))
+    obj.vertices -= obj.vertices.mean(axis=0)
     mesh = pyrender.Mesh.from_trimesh(obj)
 
     # compose scene
