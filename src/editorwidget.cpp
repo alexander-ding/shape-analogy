@@ -229,7 +229,7 @@ void EditorWidget::mousePressEvent(QMouseEvent *event)
                 break;
             }
 
-            float normalizedRadius = settings.radius / 200.f;
+            float normalizedRadius = settings.radius / 100.f;
             m_arap.hammer(shapeIntersect.position, normalizedRadius);
             break;
         }
