@@ -12,7 +12,7 @@ class MainWindow : public QWidget
     Q_OBJECT
 
 public:
-    MainWindow(Analogy analogy);
+    MainWindow(Analogy analogy, QString opath);
     ~MainWindow();
 
 private:

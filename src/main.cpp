@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
         {"a", "Path to a' .obj file", "path"},
         {"b", "Path to b .obj file", "path"},
         {{"o", "out"}, "Path to output the generated b' .obj file", "path"},
+        {{"l", "lambda"}, "Value for lambda (float)", "lambda", "10"}
     });
     parser.addHelpOption();
     parser.process(a);
@@ -39,13 +40,14 @@ int main(int argc, char *argv[])
     QString aPath = parser.value("a");
     QString bPath = parser.value("b");
     QString oPath = parser.value("o");
+    float lambdaVal = parser.value("l").toFloat();
 
     Mesh aPrimeMesh(aPath);
     Mesh bMesh(bPath);
     Mesh aPrimeCache(aPath);
     Analogy analogy(aPrimeMesh, bMesh, aPrimeCache);
-    // analogy.computeBPrime(10);
-    // analogy.getBPrime().saveToFile(oPath);
+    analogy.computeBPrime(lambdaVal);
+    analogy.getBPrime().saveToFile(oPath);
 
     QApplication::setApplicationName("Shape Shifters");
     QApplication::setOrganizationName("CS 2240");
@@ -58,7 +60,7 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(fmt);
 
     // Create a GUI window
-    MainWindow w(analogy);
+    MainWindow w(analogy, oPath);
     w.resize(1000, 500);
     int desktopArea = QGuiApplication::primaryScreen()->size().width() *
                       QGuiApplication::primaryScreen()->size().height();

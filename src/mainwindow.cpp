@@ -11,8 +11,9 @@
 #include "editorwidget.h"
 #include <QPushButton>
 #include <iostream>
+#include <QFileDialog>
 
-MainWindow::MainWindow(Analogy analogy)
+MainWindow::MainWindow(Analogy analogy, QString opath)
 {
     Mesh mesh("meshes/sphere.obj");
     editorWidget = new EditorWidget(mesh);
@@ -46,6 +47,15 @@ MainWindow::MainWindow(Analogy analogy)
     addRadioButton(vLayout, "Hammer", settings.mode == HAMMER, [this]{ setMode(HAMMER); });
     addSlider(vLayout, "Hammer Radius", 1, 100, 50, [this](int value) { setHammerRadius(value); });
     addPushButton(vLayout, "Reset", [this]{reset();});
+    addPushButton(vLayout, "Export", [this, opath]{
+        QString filePath = QFileDialog::getSaveFileName(this, tr("Save File"),
+                                                         QDir::homePath() + "/out.obj",
+                                                         tr("OBJ Files (*.obj)"));
+        if (!filePath.isEmpty()) {
+            // Now you can use directory to save your file or perform any other operations
+            analogyWidget->getAnalogy().getBPrime().saveToFile(filePath);
+        }
+    });
 }
 
 MainWindow::~MainWindow()
