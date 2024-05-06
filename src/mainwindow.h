@@ -22,7 +22,9 @@ private:
     void addHeading(QBoxLayout *layout, QString text);
     void addRadioButton(QBoxLayout *layout, QString text, bool value, auto function);
     void addSlider(QBoxLayout *layout, QString text, int minVal, int maxVal, int defaultVal, auto function);
+    void addPushButton(QBoxLayout* layout, QString text, auto function);
 
     void setMode(int type);
     void setHammerRadius(int radius);
+    void reset();
 };

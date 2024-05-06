@@ -91,12 +91,38 @@ void AnalogyWidget::initializeGL()
     Mesh &bPrime = this->m_analogy.getBPrime();
     m_bPrime.init(bPrime.getVertices(), bPrime.computeVertexNormals(), bPrime.getFaces());
 
+    // --------
+    Vector3f coeffMin, coeffMax;
+    MatrixXf& vertices = bPrime.getVertices();
+    coeffMin = vertices.rowwise().minCoeff();
+    coeffMax = vertices.rowwise().maxCoeff();
+
+
+    Vector3f center = (coeffMax + coeffMin) / 2.0;
+    center = center - Vector3f(coeffMax(0) * 2, 0, 0);
+    float extentLength = (coeffMax - coeffMin).norm();
+
+
+    // Note for maintainers: Z-up
+    float fovY = 120;
+    float nearPlane = 0.001f;
+    float farPlane = 4 * extentLength;
+
     // Initialize camera with a reasonable transform
-    Eigen::Vector3f eye = {0, 2, -5};
-    Eigen::Vector3f target = {0, 1, 0};
+    Eigen::Vector3f eye = center - Eigen::Vector3f::UnitZ() * extentLength * 2.5 + Eigen::Vector3f::UnitY() * 1.5;
+    Eigen::Vector3f target = center;
     m_camera.lookAt(eye, target);
     m_camera.setOrbitPoint(target);
-    m_camera.setPerspective(120, width() / static_cast<float>(height()), 0.1, 50);
+    m_camera.setPerspective(120, width() / static_cast<float>(height()), nearPlane, farPlane);
+
+    // ------
+
+    // Initialize camera with a reasonable transform
+//    Eigen::Vector3f eye = {0, 2, -5};
+//    Eigen::Vector3f target = {0, 1, 0};
+//    m_camera.lookAt(eye, target);
+//    m_camera.setOrbitPoint(target);
+//    m_camera.setPerspective(120, width() / static_cast<float>(height()), 0.1, 50);
 
 
     m_deltaTimeProvider.start();

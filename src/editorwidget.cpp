@@ -129,7 +129,7 @@ void EditorWidget::initializeGL()
     float farPlane = 4 * extentLength;
 
     // Initialize camera with a reasonable transform
-    Eigen::Vector3f eye = center - Eigen::Vector3f::UnitZ() * extentLength;
+    Eigen::Vector3f eye = center - Eigen::Vector3f::UnitZ() * extentLength * 2;
     Eigen::Vector3f target = center;
     m_camera.lookAt(eye, target);
     m_camera.setOrbitPoint(target);

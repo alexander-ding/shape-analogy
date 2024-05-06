@@ -9,6 +9,8 @@
 #include "analogy.h"
 #include "mesh.h"
 #include "editorwidget.h"
+#include <QPushButton>
+#include <iostream>
 
 MainWindow::MainWindow(Analogy analogy)
 {
@@ -43,6 +45,7 @@ MainWindow::MainWindow(Analogy analogy)
     addRadioButton(vLayout, "Push", settings.mode == PUSH, [this]{ setMode(PUSH); });
     addRadioButton(vLayout, "Hammer", settings.mode == HAMMER, [this]{ setMode(HAMMER); });
     addSlider(vLayout, "Hammer Radius", 1, 100, 50, [this](int value) { setHammerRadius(value); });
+    addPushButton(vLayout, "Reset", [this]{reset();});
 }
 
 MainWindow::~MainWindow()
@@ -66,6 +69,12 @@ void MainWindow::addRadioButton(QBoxLayout *layout, QString text, bool value, au
     button->setChecked(value);
     layout->addWidget(button);
     connect(button, &QRadioButton::clicked, this, function);
+}
+
+void MainWindow::addPushButton(QBoxLayout* layout, QString text, auto function) {
+    QPushButton *pushButton = new QPushButton(text);
+    layout->addWidget(pushButton);
+    connect(pushButton, &QPushButton::released, this, function);
 }
 
 void MainWindow::addSlider(QBoxLayout *layout, QString text, int minVal, int maxVal, int defaultVal, auto function) {
@@ -93,5 +102,9 @@ void MainWindow::setMode(int type) {
 
 void MainWindow::setHammerRadius(int radius) {
     settings.radius = float(radius);
+}
+
+void MainWindow::reset() {
+    std::cout << "reset" << std::endl;
 }
 
