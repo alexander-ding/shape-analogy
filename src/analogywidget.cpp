@@ -59,6 +59,12 @@ void AnalogyWidget::syncAnalogy()
     m_bPrime.init(bPrime.getVertices(), bPrime.computeVertexNormals(), bPrime.getFaces());
 }
 
+
+void AnalogyWidget::reset() {
+    this->m_analogy.setAPrime(this->m_analogy.getAPrimeCache());
+    this->m_analogy.setBPrime(this->m_analogy.getB());
+    syncAnalogy();
+}
 // ================== Basic OpenGL Overrides
 
 void AnalogyWidget::initializeGL()
@@ -116,14 +122,6 @@ void AnalogyWidget::initializeGL()
     m_camera.setPerspective(120, width() / static_cast<float>(height()), nearPlane, farPlane);
 
     // ------
-
-    // Initialize camera with a reasonable transform
-//    Eigen::Vector3f eye = {0, 2, -5};
-//    Eigen::Vector3f target = {0, 1, 0};
-//    m_camera.lookAt(eye, target);
-//    m_camera.setOrbitPoint(target);
-//    m_camera.setPerspective(120, width() / static_cast<float>(height()), 0.1, 50);
-
 
     m_deltaTimeProvider.start();
     m_intervalTimer.start(1000. / FRAMES_TO_AVERAGE);

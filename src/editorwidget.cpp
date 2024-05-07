@@ -54,7 +54,8 @@ EditorWidget::EditorWidget(Mesh& mesh, QWidget *parent) :
     m_leftCapture(false),
     m_rightCapture(false),
     m_rightClickSelectMode(SelectMode::None),
-    m_lastSelectedVertex(-1)
+    m_lastSelectedVertex(-1),
+    m_mesh(mesh)
 {
     // EditorWidget needs all mouse move events, not just mouse drag events
     setMouseTracking(true);
@@ -431,6 +432,15 @@ void EditorWidget::syncShape() {
         }
     }
     this->m_shape.setVertices(mesh.getVertices(), mesh.computeVertexNormals(), colors);
+}
+
+void EditorWidget::reset() {
+    // return mesh to sphere
+    this->m_arap.setMesh(m_mesh);
+    // clear anchor
+    this->m_arap.clearAnchors();
+    // update visualization
+    syncShape();
 }
 
 // ================== Physics Tick

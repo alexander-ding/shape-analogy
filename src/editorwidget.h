@@ -25,6 +25,8 @@ public:
     void onUpdate(std::function<void(EditorWidget*)> f);
     ARAP& getARAP() { return this->m_arap; }
 
+    void reset();
+
 private:
     static const int FRAMES_TO_AVERAGE = 30;
 
@@ -56,6 +58,7 @@ private:
     Shader *m_defaultShader;
     Shader *m_pointShader;
     std::function<void(EditorWidget*)> m_onUpdate;
+    Mesh m_mesh;
 
     float m_movementScaling;
     float m_vertexSelectionThreshold;

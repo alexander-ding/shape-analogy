@@ -12,7 +12,7 @@
 class Analogy
 {
 public:
-    Analogy(Mesh aPrime, Mesh b, Mesh aPrimeCache);
+    Analogy(Mesh aPrime, Mesh b);
 
     Mesh& getAPrime() {return this->m_aPrime;}
     void setAPrime(const Mesh& aPrime) {this->m_aPrime = aPrime;}
@@ -21,6 +21,10 @@ public:
     Mesh& getBPrime() {return this->m_bPrime;}
     Eigen::MatrixXf& getBTargetNormals() { return this->m_bTargetNormals; }
     void computeBPrime(float lambda = 100);
+
+    void setBPrime(Mesh mesh) { this->m_bPrime = mesh; }
+    Mesh& getAPrimeCache() { return this->m_aPrimeCache; }
+
 private:
     Eigen::MatrixXf computeTargetNormals();
     Eigen::VectorXf computeVoronoiAreas();
@@ -32,6 +36,7 @@ private:
     Mesh m_aPrime;
     Mesh m_b;
     Mesh m_aPrimeCache;
+    Mesh m_bCache;
     Eigen::MatrixXf m_tessellatedSphereNormals;
 };
 

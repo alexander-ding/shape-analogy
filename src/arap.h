@@ -36,7 +36,12 @@ public:
     ARAP(Mesh mesh);
 
     Mesh& getMesh() { return this->m_mesh; }
+    void setMesh(Mesh mesh) { this->m_mesh = mesh; }
+
     std::unordered_set<int>& getAnchors() { return this->m_anchors; }
+    void clearAnchors() { this->m_anchors.clear(); }
+
+
     void init(Eigen::Vector3f &min, Eigen::Vector3f &max);
     bool invalidate();
     void move(int vertex, Eigen::Vector3f pos);

@@ -2,8 +2,8 @@
 #include <iostream>
 #include <limits>
 
-Analogy::Analogy(Mesh aPrime, Mesh b, Mesh aPrimeCache)
-    : m_aPrime(aPrime), m_b(b), m_bPrime(b), m_aPrimeCache(aPrimeCache)
+Analogy::Analogy(Mesh aPrime, Mesh b)
+    : m_aPrime(aPrime), m_b(b), m_bPrime(b), m_aPrimeCache(aPrime), m_bCache(b)
 {
     this->m_tessellatedSphereNormals = this->m_aPrimeCache.computeFaceNormals().transpose();
 }

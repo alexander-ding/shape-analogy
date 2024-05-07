@@ -115,6 +115,8 @@ void MainWindow::setHammerRadius(int radius) {
 }
 
 void MainWindow::reset() {
-    std::cout << "reset" << std::endl;
+    editorWidget->reset();
+    analogyWidget->reset();
+
 }
 

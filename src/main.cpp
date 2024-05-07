@@ -44,8 +44,7 @@ int main(int argc, char *argv[])
 
     Mesh aPrimeMesh(aPath);
     Mesh bMesh(bPath);
-    Mesh aPrimeCache(aPath);
-    Analogy analogy(aPrimeMesh, bMesh, aPrimeCache);
+    Analogy analogy(aPrimeMesh, bMesh);
     analogy.computeBPrime(lambdaVal);
     analogy.getBPrime().saveToFile(oPath);
 
