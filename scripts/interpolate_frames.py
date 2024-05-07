@@ -13,17 +13,17 @@ output_dir.mkdir(parents=True, exist_ok=True)
 for f in output_dir.glob('*.obj'):
     os.remove(f)
 
-# steps = [
-#     trimesh.load(input_dir / 'sphere.obj'),
-#     trimesh.load(input_dir / 'd8.obj'),
-#     trimesh.load(input_dir / 'sphere.obj'),
-#     trimesh.load(input_dir / 'cylinder.obj'),
-#     trimesh.load(input_dir / 'sphere.obj'),
-#     trimesh.load(input_dir / 'tetrahedron.obj'),
-#     trimesh.load(input_dir / 'sphere.obj'),
-#     trimesh.load(input_dir / 'cylinder.obj'),
-#     trimesh.load(input_dir / 'sphere.obj'),
-# ]
+steps = [
+    trimesh.load(input_dir / 'sphere.obj'),
+    trimesh.load(input_dir / 'd8.obj'),
+    trimesh.load(input_dir / 'sphere.obj'),
+    trimesh.load(input_dir / 'cylinder.obj'),
+    trimesh.load(input_dir / 'sphere.obj'),
+    trimesh.load(input_dir / 'tetrahedron.obj'),
+    trimesh.load(input_dir / 'sphere.obj'),
+    trimesh.load(input_dir / 'cube.obj'),
+    trimesh.load(input_dir / 'sphere.obj'),
+]
 
 steps = [
     trimesh.load(input_dir / 'spot.obj'),
@@ -33,7 +33,7 @@ steps = [
     trimesh.load(input_dir / 'spot.obj'),
     trimesh.load(input_dir / 'spot_tetrahedron.obj'),
     trimesh.load(input_dir / 'spot.obj'),
-    trimesh.load(input_dir / 'spot_cylinder.obj'),
+    trimesh.load(input_dir / 'spot_cube.obj'),
     trimesh.load(input_dir / 'spot.obj'),
 ]
 

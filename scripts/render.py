@@ -6,6 +6,35 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 
+def look_at(position, target, up_vector=np.array([0, 1, 0])):
+    # Calculate forward, right, and up vectors
+    direction = position - target
+    direction = direction / np.linalg.norm(direction)
+
+    right_vector = np.cross(up_vector, direction)
+    right_vector = right_vector / np.linalg.norm(right_vector)
+
+    new_up_vector = np.cross(direction, right_vector)
+    new_up_vector = new_up_vector / np.linalg.norm(new_up_vector)
+
+    # if np.dot(new_up_vector, up_vector) < 0:
+    #     new_up_vector = -new_up_vector
+
+    # Construct the rotation matrix
+    rotation_matrix = np.column_stack((
+        right_vector,
+        new_up_vector,
+        direction
+    ))
+
+    # Construct the full transformation matrix
+    pose = np.eye(4)
+    pose[:3, :3] = rotation_matrix
+    pose[:3, 3] = position
+
+    return pose
+
+
 def render_image(obj_path, output_path):
     obj = trimesh.load(obj_path)
     obj.apply_transform(trimesh.transformations.rotation_matrix(
@@ -15,19 +44,18 @@ def render_image(obj_path, output_path):
 
     # compose scene
     scene = pyrender.Scene(ambient_light=[.1, .1, .3], bg_color=[0, 0, 0])
+    # camera = pyrender.OrthographicCamera()
     camera = pyrender.PerspectiveCamera(yfov=np.pi / 3.0)
     light = pyrender.DirectionalLight(color=[1, 1, 1], intensity=2e3)
 
     scene.add(mesh, pose=np.eye(4))
     scene.add(light, pose=np.eye(4))
 
-    # depending on the size of the mesh you load in, you'll need to change this
-    # most likely just the translation column
-    # +x points to the right, +y points up, +z points toward you (the screen)
-    scene.add(camera, pose=[[1,  0,  0,  0],
-                            [0,  1, 0, 0.5],
-                            [0,  0, 1,  4],
-                            [0,  0,  0,  1]])
+    pos = np.array([1.5, 1, 3])
+    look = np.array([0, 0, 0])
+    pose = look_at(pos, look)
+    # Set up the scene
+    scene.add(camera, pose=pose)
 
     # render scene
     r = pyrender.OffscreenRenderer(512, 512)

@@ -186,5 +186,8 @@ Thumbs.db
 # ------------------------------------
 
 !meshes/*.obj
+render/
+output/
+frames/
 
 **/*.mp4
