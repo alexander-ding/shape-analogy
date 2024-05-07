@@ -1,5 +1,6 @@
 #include "arap.h"
 #include "mesh.h"
+#include "settings.h"
 
 #include <iostream>
 #include <unordered_set>
@@ -13,7 +14,47 @@
 using namespace std;
 using namespace Eigen;
 
+void ARAP::setVertices(const MatrixXf& newVertices) {
+    this->m_isUnsynced = true;
+    this->m_mesh.setVertices(newVertices);
+}
 
+void ARAP::commitUpdate(const MatrixXf& newVertices) {
+    this->m_isValid = false;
+
+    if (settings.mirrorX || settings.mirrorY || settings.mirrorZ) {
+        MatrixXf diff = newVertices - this->m_prevFrameVertices;
+        if (settings.mirrorX) {
+            MatrixXf diffMirror = diff;
+            for (size_t i = 0; i < newVertices.cols(); i++) {
+                diffMirror.col(this->m_xMirror[i]) = diff.col(i);
+            }
+            diffMirror.row(0) *= -1;
+            diff += diffMirror;
+        }
+        if (settings.mirrorY) {
+            MatrixXf diffMirror = diff;
+            for (size_t i = 0; i < newVertices.cols(); i++) {
+                diffMirror.col(this->m_yMirror[i]) = diff.col(i);
+            }
+            diffMirror.row(1) *= -1;
+            diff += diffMirror;
+        }
+        if (settings.mirrorZ) {
+            MatrixXf diffMirror = diff;
+            for (size_t i = 0; i < newVertices.cols(); i++) {
+                diffMirror.col(this->m_zMirror[i]) = diff.col(i);
+            }
+            diffMirror.row(2) *= -1;
+            diff += diffMirror;
+        }
+        this->setVertices(this->m_prevFrameVertices + diff);
+    } else {
+        this->setVertices(newVertices);
+    }
+
+
+}
 
 void ARAP::build()
 {
@@ -68,7 +109,55 @@ void ARAP::build()
     this->m_isValid = true;
 }
 
-ARAP::ARAP(Mesh mesh) : m_vertexEdges(), m_mesh(mesh), m_prevFrameVertices(mesh.getVertices()) {}
+void ARAP::buildMirror()
+{
+    MatrixXf vertices = this->getMesh().getVertices();
+    this->m_xMirror = VectorXi::Zero(vertices.cols());
+    this->m_yMirror = VectorXi::Zero(vertices.cols());
+    this->m_zMirror = VectorXi::Zero(vertices.cols());
+    // std::cout << vertices << std::endl;
+    // Tolerance for floating point comparison
+    const float epsilon = 1e-5;
+
+    for (int i = 0; i < vertices.cols(); ++i) {
+        for (int j = 0; j < vertices.cols(); ++j) {
+            if (std::abs(vertices(0, i) + vertices(0, j)) < epsilon &&  // X-coordinates are negatives
+                std::abs(vertices(1, i) - vertices(1, j)) < epsilon &&  // Y-coordinates are the same
+                std::abs(vertices(2, i) - vertices(2, j)) < epsilon) {  // Z-coordinates are the same
+                m_xMirror(i) = j;  // Assign the mirrored vertex index
+                break;  // Stop searching once a mirror is found
+            }
+        }
+    }
+
+    for (int i = 0; i < vertices.cols(); ++i) {
+        for (int j = 0; j < vertices.cols(); ++j) {
+            if (std::abs(vertices(0, i) - vertices(0, j)) < epsilon &&  // X-coordinates are the same
+                std::abs(vertices(1, i) + vertices(1, j)) < epsilon &&  // Y-coordinates are negatives
+                std::abs(vertices(2, i) - vertices(2, j)) < epsilon) {  // Z-coordinates are the same
+                m_yMirror(i) = j;  // Assign the mirrored vertex index
+                break;  // Stop searching once a mirror is found
+            }
+        }
+    }
+
+    for (int i = 0; i < vertices.cols(); ++i) {
+        for (int j = 0; j < vertices.cols(); ++j) {
+            if (std::abs(vertices(0, i) - vertices(0, j)) < epsilon &&  // X-coordinates are the same
+                std::abs(vertices(1, i) - vertices(1, j)) < epsilon &&  // Y-coordinates are the same
+                std::abs(vertices(2, i) + vertices(2, j)) < epsilon) {  // Z-coordinates are negatives
+                m_zMirror(i) = j;  // Assign the mirrored vertex index
+                break;  // Stop searching once a mirror is found
+            }
+        }
+    }
+
+
+}
+
+ARAP::ARAP(Mesh mesh) : m_vertexEdges(), m_mesh(mesh), m_prevFrameVertices(mesh.getVertices()) {
+    this->buildMirror();
+}
 
 
 void ARAP::init(Eigen::Vector3f &coeffMin, Eigen::Vector3f &coeffMax)
@@ -174,7 +263,7 @@ void ARAP::move(int vertex, Vector3f targetPosition)
         }
         prevError = error;
     }
-    this->m_mesh.setVertices(newVertices);
+    this->setVertices(newVertices);
 }
 
 SelectMode ARAP::select(int closest_vertex)
@@ -252,5 +341,6 @@ bool ARAP::getAnchorPos(int lastSelected,
 }
 
 void ARAP::undo() {
+    this->m_isValid = false;
     this->m_mesh.setVertices(this->m_prevFrameVertices);
 }

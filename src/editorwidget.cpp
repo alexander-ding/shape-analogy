@@ -8,7 +8,7 @@
 
 #define SPEED 1.5
 #define ROTATE_SPEED 0.0025
-#define PUSH_SPEED 0.005
+#define PUSH_SPEED 0.0025
 #define MAX_RADIUS 0.5f
 
 using namespace std;
@@ -336,14 +336,20 @@ void EditorWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     m_leftCapture = false;
     m_lastSelectedVertex = -1;
-
+    bool wasPush = m_push;
     m_push = 0;
 
     m_rightCapture = false;
     m_rightClickSelectMode = SelectMode::None;
-    bool isValid = this->m_arap.invalidate();
-    if (isValid && this->m_onUpdate) {
-//         cout << "updating" << endl;
+    bool wasARAP = this->m_arap.invalidate();
+    if (wasPush || wasARAP) {
+        // std::cout << "Committing update" << std::endl;
+        this->m_arap.commitUpdate(this->m_arap.getVerts());
+    }
+    if (this->m_arap.getIsUnsynced() && this->m_onUpdate) {
+        // cout << "updating" << endl;
+        this->m_arap.setIsUnsynced(false);
+        syncShape();
         this->m_onUpdate(this);
     }
 }

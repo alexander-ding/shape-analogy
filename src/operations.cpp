@@ -13,8 +13,6 @@ using namespace Eigen;
 
 // TODO: use qtconcurrent blockingmap
 void ARAP::push(Vector3f position, Vector3f direction) {
-    if (!this->m_isValid) this->build();
-
     MatrixXf vertices = this->m_mesh.getVertices();
     Vector3f planeNormal = direction.normalized();
 
@@ -32,12 +30,11 @@ void ARAP::push(Vector3f position, Vector3f direction) {
         vertices.col(i) = pointOnPlane;
     }
 
-    this->m_mesh.setVertices(vertices);
+    this->setVertices(vertices);
 }
 
 void ARAP::hammer(Vector3f position, float radius) {
     // std::cout << "hammering" << std::endl;
-    if (!this->m_isValid) this->build();
 
     // std::cout << position.norm() << std::endl; // this is 1
 
@@ -72,7 +69,7 @@ void ARAP::hammer(Vector3f position, float radius) {
     }
 
 
-    this->m_mesh.setVertices(vertices);
+    this->commitUpdate(vertices);
 }
 
 Intersection ARAP::intersectTriangle(const Vector3f& start, const Vector3f& ray, const VectorXi& face) {

@@ -12,6 +12,9 @@ enum Mode {
 struct Settings {
     int mode;
     float radius;
+    bool mirrorX;
+    bool mirrorY;
+    bool mirrorZ;
     void loadSettingsOrDefaults();
 };
 

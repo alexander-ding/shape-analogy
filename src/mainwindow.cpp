@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QRadioButton>
 #include <QSlider>
+#include <QCheckbox>
 #include "analogy.h"
 #include "mesh.h"
 #include "editorwidget.h"
@@ -47,6 +48,11 @@ MainWindow::MainWindow(Analogy analogy, QString opath, QString primitivePath)
     addRadioButton(vLayout, "Push", settings.mode == PUSH, [this]{ setMode(PUSH); });
     addRadioButton(vLayout, "Hammer", settings.mode == HAMMER, [this]{ setMode(HAMMER); });
     addSlider(vLayout, "Hammer Radius", 1, 100, 50, [this](int value) { setHammerRadius(value); });
+    addHeading(vLayout, "Mirror");
+    addCheckbox(vLayout, "X-Axis", settings.mirrorX, [this](int value) { setMirrorX(value != 0); });
+    addCheckbox(vLayout, "Y-Axis", settings.mirrorY, [this](int value) { setMirrorY(value != 0); });
+    addCheckbox(vLayout, "Z-Axis", settings.mirrorZ, [this](int value) { setMirrorZ(value != 0); });
+
     addPushButton(vLayout, "Undo Step", [this]{undo();});
     addPushButton(vLayout, "Reset", [this]{reset();});
     addPushButton(vLayout, "Export", [this, opath]{
@@ -107,6 +113,13 @@ void MainWindow::addSlider(QBoxLayout *layout, QString text, int minVal, int max
     });
 }
 
+void MainWindow::addCheckbox(QBoxLayout* layout, QString text, bool value, auto function) {
+    QCheckBox *checkbox = new QCheckBox(text);
+    checkbox->setChecked(value);
+    layout->addWidget(checkbox);
+    connect(checkbox, &QCheckBox::stateChanged, this, function);
+}
+
 void MainWindow::setMode(int type) {
     settings.mode = type;
     // m_canvas->settingsChanged();
@@ -114,6 +127,21 @@ void MainWindow::setMode(int type) {
 
 void MainWindow::setHammerRadius(int radius) {
     settings.radius = float(radius);
+}
+
+void MainWindow::setMirrorX(bool value)
+{
+    settings.mirrorX = value;
+}
+
+void MainWindow::setMirrorY(bool value)
+{
+    settings.mirrorY = value;
+}
+
+void MainWindow::setMirrorZ(bool value)
+{
+    settings.mirrorZ = value;
 }
 
 void MainWindow::reset() {

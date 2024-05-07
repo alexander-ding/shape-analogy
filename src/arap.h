@@ -25,18 +25,29 @@ class ARAP
 {
 private:
     bool m_isValid;
+    bool m_isUnsynced;
     Mesh m_mesh;
     std::unordered_set<int> m_anchors;
+    Eigen::VectorXi m_xMirror;
+    Eigen::VectorXi m_yMirror;
+    Eigen::VectorXi m_zMirror;
+
     std::vector<std::unordered_map<int, float>> m_vertexEdges;
     Eigen::SimplicialLDLT<Eigen::SparseMatrix<float>> m_solver;
     Intersection intersectTriangle(const Vector3f& start, const Vector3f& ray, const VectorXi& face);
+    void setVertices(const MatrixXf& newVertices);
 
     MatrixXf m_prevFrameVertices;
     void build();
+    void buildMirror();
 public:
     ARAP(Mesh mesh);
 
     Mesh& getMesh() { return this->m_mesh; }
+    bool getIsUnsynced() { return this->m_isUnsynced; }
+    void setIsUnsynced(bool value ) { this->m_isUnsynced = value; }
+    void commitUpdate(const MatrixXf& newVertices);
+
     void setMesh(Mesh mesh) { this->m_mesh = mesh; }
     void setPrevFrameVerts(MatrixXf& verts) { this->m_prevFrameVertices = verts; }
     MatrixXf& getVerts() {return this->m_mesh.getVertices(); }

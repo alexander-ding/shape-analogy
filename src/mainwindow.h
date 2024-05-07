@@ -23,9 +23,14 @@ private:
     void addRadioButton(QBoxLayout *layout, QString text, bool value, auto function);
     void addSlider(QBoxLayout *layout, QString text, int minVal, int maxVal, int defaultVal, auto function);
     void addPushButton(QBoxLayout* layout, QString text, auto function);
+    void addCheckbox(QBoxLayout* layout, QString text, bool value, auto function);
 
     void setMode(int type);
     void setHammerRadius(int radius);
+    void setMirrorX(bool value);
+    void setMirrorY(bool value);
+    void setMirrorZ(bool value);
+
     void reset();
     void undo();
 };
