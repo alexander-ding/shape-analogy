@@ -2,8 +2,9 @@
 #include <iostream>
 #include <limits>
 
-Analogy::Analogy(Mesh aPrime, Mesh b)
-    : m_aPrime(aPrime), m_b(b), m_bPrime(b), m_aPrimeCache(aPrime), m_bCache(b)
+Analogy::Analogy(Mesh aPrime, Mesh b, bool sphereDeform)
+    : m_aPrime(aPrime), m_b(b), m_bPrime(b), m_aPrimeCache(aPrime), m_bCache(b),
+    m_computeTargetNormalsFunc(sphereDeform ? &Analogy::computeTargetNormalsMapping : &Analogy::computeTargetNormalsSnapping)
 {
     this->m_tessellatedSphereNormals = this->m_aPrimeCache.computeFaceNormals().transpose();
 }
@@ -13,7 +14,7 @@ void Analogy::computeBPrime(float lambda)
     Eigen::MatrixXf& vertices = this->m_b.getVertices();
     Eigen::MatrixXf& newVertices = this->m_bPrime.getVertices();
     Eigen::MatrixXf prevVertices = newVertices;
-    this->m_bTargetNormals = this->computeTargetNormals();
+    this->m_bTargetNormals = (this->*m_computeTargetNormalsFunc)();
     std::vector<std::unordered_map<size_t, float> > edgeWeights = this->computeEdgeWeights();
     Eigen::VectorXf voronoiAreas = this->computeVoronoiAreas();
     std::unique_ptr<Eigen::SimplicialLDLT<Eigen::SparseMatrix<float>>> solver = this->buildL(edgeWeights);
@@ -123,7 +124,7 @@ Eigen::VectorXf projectAndInterpolate(Eigen::VectorXf& p, Eigen::Vector3i& indic
     return barycentricInterpolation(projectedPoint, v0, v1, v2, n0, n1, n2, faceNormal);
 }
 
-MatrixXf Analogy::computeTargetNormals() // between B and initial sphere
+MatrixXf Analogy::computeTargetNormalsMapping() // between B and initial sphere
 {
     // n x 3
     Eigen::MatrixXf aPrimeNormals = m_tessellatedSphereNormals; // cached
@@ -150,22 +151,22 @@ MatrixXf Analogy::computeTargetNormals() // between B and initial sphere
     return bNormals;
 }
 
-//MatrixXf computeTargetNormalsOld()
-//{
-//    // n x 3
-//    Eigen::MatrixXf aPrimeNormals = this->m_aPrime.computeFaceNormals().transpose();
-//    // 3 x m
-//    Eigen::MatrixXf bNormals = this->m_b.computeVertexNormals();
-//    // n x m
-//    Eigen::MatrixXf similarities = aPrimeNormals * bNormals;
-//    // m x n
-//    for (size_t i = 0; i < bNormals.cols(); i++) {
-//        size_t maxIndex;
-//        similarities.col(i).maxCoeff(&maxIndex);
-//        bNormals.col(i) = aPrimeNormals.row(maxIndex);
-//    }
-//    return bNormals;
-//}
+MatrixXf Analogy::computeTargetNormalsSnapping()
+{
+    // n x 3
+    Eigen::MatrixXf aPrimeNormals = this->m_aPrime.computeFaceNormals().transpose();
+    // 3 x m
+    Eigen::MatrixXf bNormals = this->m_b.computeVertexNormals();
+    // n x m
+    Eigen::MatrixXf similarities = aPrimeNormals * bNormals;
+    // m x n
+    for (size_t i = 0; i < bNormals.cols(); i++) {
+        size_t maxIndex;
+        similarities.col(i).maxCoeff(&maxIndex);
+        bNormals.col(i) = aPrimeNormals.row(maxIndex);
+    }
+    return bNormals;
+}
 
 inline float triangleArea(const Eigen::Vector3f& v1, const Eigen::Vector3f& v2, const Eigen::Vector3f& v3) {
     return 0.5 * (v2 - v1).cross(v3 - v1).norm();

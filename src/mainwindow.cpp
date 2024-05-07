@@ -13,9 +13,9 @@
 #include <iostream>
 #include <QFileDialog>
 
-MainWindow::MainWindow(Analogy analogy, QString opath)
+MainWindow::MainWindow(Analogy analogy, QString opath, QString primitivePath)
 {
-    Mesh mesh("meshes/sphere.obj");
+    Mesh mesh(primitivePath);
     editorWidget = new EditorWidget(mesh);
     analogyWidget = new AnalogyWidget(analogy);
     editorWidget->onUpdate([&](EditorWidget* e) {

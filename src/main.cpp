@@ -19,7 +19,8 @@ int main(int argc, char *argv[])
         {"a", "Path to a' .obj file", "path"},
         {"b", "Path to b .obj file", "path"},
         {{"o", "out"}, "Path to output the generated b' .obj file", "path"},
-        {{"l", "lambda"}, "Value for lambda (float)", "lambda", "10"}
+        {{"l", "lambda"}, "Value for lambda (float)", "lambda", "10"},
+        {"s", "Sphere deformation", "true"}
     });
     parser.addHelpOption();
     parser.process(a);
@@ -36,15 +37,20 @@ int main(int argc, char *argv[])
         cerr << "flag -o not set" << std::endl;
         return -1;
     }
+    if (!parser.isSet("s")) {
+        cerr << "flag -s not set" << std::endl;
+        return -1;
+    }
 
     QString aPath = parser.value("a");
     QString bPath = parser.value("b");
     QString oPath = parser.value("o");
     float lambdaVal = parser.value("l").toFloat();
+    bool sphereDeform = (parser.value("s")).toLower() == "true";
 
     Mesh aPrimeMesh(aPath);
     Mesh bMesh(bPath);
-    Analogy analogy(aPrimeMesh, bMesh);
+    Analogy analogy(aPrimeMesh, bMesh, sphereDeform);
     analogy.computeBPrime(lambdaVal);
     analogy.getBPrime().saveToFile(oPath);
 
@@ -58,8 +64,9 @@ int main(int argc, char *argv[])
     fmt.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(fmt);
 
+
     // Create a GUI window
-    MainWindow w(analogy, oPath);
+    MainWindow w(analogy, oPath, aPath);
     w.resize(1000, 500);
     int desktopArea = QGuiApplication::primaryScreen()->size().width() *
                       QGuiApplication::primaryScreen()->size().height();

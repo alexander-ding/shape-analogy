@@ -12,7 +12,7 @@
 class Analogy
 {
 public:
-    Analogy(Mesh aPrime, Mesh b);
+    Analogy(Mesh aPrime, Mesh b,  bool sphereDeform);
 
     Mesh& getAPrime() {return this->m_aPrime;}
     void setAPrime(const Mesh& aPrime) {this->m_aPrime = aPrime;}
@@ -26,7 +26,8 @@ public:
     Mesh& getAPrimeCache() { return this->m_aPrimeCache; }
 
 private:
-    Eigen::MatrixXf computeTargetNormals();
+    Eigen::MatrixXf computeTargetNormalsMapping();
+    Eigen::MatrixXf computeTargetNormalsSnapping();
     Eigen::VectorXf computeVoronoiAreas();
     std::vector<std::unordered_map<size_t, float>> computeEdgeWeights();
     std::unique_ptr<Eigen::SimplicialLDLT<Eigen::SparseMatrix<float>>> buildL(const std::vector<std::unordered_map<size_t, float> >& edgeWeights);
@@ -38,6 +39,7 @@ private:
     Mesh m_aPrimeCache;
     Mesh m_bCache;
     Eigen::MatrixXf m_tessellatedSphereNormals;
+    Eigen::MatrixXf (Analogy::*m_computeTargetNormalsFunc)();
 };
 
 #endif // ANALOGY_H
