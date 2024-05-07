@@ -228,7 +228,6 @@ int ARAP::getClosestVertex(Vector3f start, Vector3f ray, float threshold)
             dist = d;
             closest_vertex = i;
         }
-        ++i;
     }
 
     if (dist >= threshold) closest_vertex = -1;
