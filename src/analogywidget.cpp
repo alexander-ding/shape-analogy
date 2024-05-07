@@ -48,6 +48,8 @@ AnalogyWidget::~AnalogyWidget()
 
 void AnalogyWidget::syncAnalogy()
 {
+
+    this->m_analogy.setPrevFrameBPrimeVerts(this->m_analogy.getBPrime().getVertices());
     this->m_analogy.computeBPrime(1000);
     Eigen::MatrixXf colors = (m_analogy.getBTargetNormals().array() + 1.f) / 2.f;
     Mesh &b = this->m_analogy.getB();
@@ -63,6 +65,11 @@ void AnalogyWidget::syncAnalogy()
 void AnalogyWidget::reset() {
     this->m_analogy.setAPrime(this->m_analogy.getAPrimeCache());
     this->m_analogy.setBPrime(this->m_analogy.getB());
+    syncAnalogy();
+}
+
+void AnalogyWidget::undo() {
+    this->m_analogy.undo();
     syncAnalogy();
 }
 // ================== Basic OpenGL Overrides
@@ -265,3 +272,5 @@ void AnalogyWidget::tick()
     // Flag this view for repainting (Qt will call paintGL() soon after)
     update();
 }
+
+

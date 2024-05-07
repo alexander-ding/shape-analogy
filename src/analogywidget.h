@@ -25,6 +25,7 @@ public:
     Analogy& getAnalogy() { return this->m_analogy; }
     void syncAnalogy();
     void reset();
+    void undo();
 
 private:
     static const int FRAMES_TO_AVERAGE = 60;

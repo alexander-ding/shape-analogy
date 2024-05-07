@@ -20,6 +20,7 @@ MainWindow::MainWindow(Analogy analogy, QString opath, QString primitivePath)
     analogyWidget = new AnalogyWidget(analogy);
     editorWidget->onUpdate([&](EditorWidget* e) {
         Mesh m = e->getARAP().getMesh();
+        analogyWidget->getAnalogy().setPrevFrameAPrimeVerts(analogyWidget->getAnalogy().getAPrime().getVertices());
         analogyWidget->getAnalogy().setAPrime(m);
         analogyWidget->syncAnalogy();
     });
@@ -46,6 +47,7 @@ MainWindow::MainWindow(Analogy analogy, QString opath, QString primitivePath)
     addRadioButton(vLayout, "Push", settings.mode == PUSH, [this]{ setMode(PUSH); });
     addRadioButton(vLayout, "Hammer", settings.mode == HAMMER, [this]{ setMode(HAMMER); });
     addSlider(vLayout, "Hammer Radius", 1, 100, 50, [this](int value) { setHammerRadius(value); });
+    addPushButton(vLayout, "Undo Step", [this]{undo();});
     addPushButton(vLayout, "Reset", [this]{reset();});
     addPushButton(vLayout, "Export", [this, opath]{
         QString filePath = QFileDialog::getSaveFileName(this, tr("Save File"),
@@ -119,4 +121,10 @@ void MainWindow::reset() {
     analogyWidget->reset();
 
 }
+
+void MainWindow::undo() {
+    editorWidget->undo();
+    analogyWidget->undo();
+}
+
 

@@ -212,6 +212,7 @@ void EditorWidget::mousePressEvent(QMouseEvent *event)
             m_rightClickSelectMode = m_arap.select(closest_vertex);
             break;
         case PUSH: {
+            m_arap.setPrevFrameVerts(m_arap.getVerts());
             Intersection shapeIntersect = m_arap.intersectMesh(start, ray);
             if (!shapeIntersect.hit) {
                 break;
@@ -225,6 +226,7 @@ void EditorWidget::mousePressEvent(QMouseEvent *event)
             break;
         }
         case HAMMER: {
+            m_arap.setPrevFrameVerts(m_arap.getVerts());
             Intersection shapeIntersect = m_arap.intersectMesh(start, ray);
             if (!shapeIntersect.hit) {
                 break;
@@ -248,6 +250,7 @@ void EditorWidget::mousePressEvent(QMouseEvent *event)
         m_leftCapture = true;
         switch (settings.mode) {
         case ARAP:
+            m_arap.setPrevFrameVerts(m_arap.getVerts());
             // Select this vertex
             m_lastSelectedVertex = closest_vertex;
         default:
@@ -340,7 +343,7 @@ void EditorWidget::mouseReleaseEvent(QMouseEvent *event)
     m_rightClickSelectMode = SelectMode::None;
     bool isValid = this->m_arap.invalidate();
     if (isValid && this->m_onUpdate) {
-        // cout << "updating" << endl;
+//         cout << "updating" << endl;
         this->m_onUpdate(this);
     }
 }
@@ -440,6 +443,11 @@ void EditorWidget::reset() {
     // clear anchor
     this->m_arap.clearAnchors();
     // update visualization
+    syncShape();
+}
+
+void EditorWidget::undo() {
+    this->m_arap.undo();
     syncShape();
 }
 

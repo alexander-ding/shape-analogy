@@ -27,4 +27,5 @@ private:
     void setMode(int type);
     void setHammerRadius(int radius);
     void reset();
+    void undo();
 };

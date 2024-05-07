@@ -68,7 +68,7 @@ void ARAP::build()
     this->m_isValid = true;
 }
 
-ARAP::ARAP(Mesh mesh) : m_vertexEdges(), m_mesh(mesh) {}
+ARAP::ARAP(Mesh mesh) : m_vertexEdges(), m_mesh(mesh), m_prevFrameVertices(mesh.getVertices()) {}
 
 
 void ARAP::init(Eigen::Vector3f &coeffMin, Eigen::Vector3f &coeffMax)
@@ -174,7 +174,6 @@ void ARAP::move(int vertex, Vector3f targetPosition)
         }
         prevError = error;
     }
-
     this->m_mesh.setVertices(newVertices);
 }
 
@@ -251,4 +250,8 @@ bool ARAP::getAnchorPos(int lastSelected,
         pos = line.projection(oldPos);
     }
     return isAnchor;
+}
+
+void ARAP::undo() {
+    this->m_mesh.setVertices(this->m_prevFrameVertices);
 }

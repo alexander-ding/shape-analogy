@@ -26,6 +26,7 @@ public:
     ARAP& getARAP() { return this->m_arap; }
 
     void reset();
+    void undo();
 
 private:
     static const int FRAMES_TO_AVERAGE = 30;

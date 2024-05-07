@@ -31,12 +31,15 @@ private:
     Eigen::SimplicialLDLT<Eigen::SparseMatrix<float>> m_solver;
     Intersection intersectTriangle(const Vector3f& start, const Vector3f& ray, const VectorXi& face);
 
+    MatrixXf m_prevFrameVertices;
     void build();
 public:
     ARAP(Mesh mesh);
 
     Mesh& getMesh() { return this->m_mesh; }
     void setMesh(Mesh mesh) { this->m_mesh = mesh; }
+    void setPrevFrameVerts(MatrixXf& verts) { this->m_prevFrameVertices = verts; }
+    MatrixXf& getVerts() {return this->m_mesh.getVertices(); }
 
     std::unordered_set<int>& getAnchors() { return this->m_anchors; }
     void clearAnchors() { this->m_anchors.clear(); }
@@ -58,4 +61,7 @@ public:
     Intersection intersectMesh(Vector3f start, Vector3f ray);
     void push(Vector3f position, Vector3f direction);
     void hammer(Vector3f position, float radius);
+
+
+    void undo();
 };

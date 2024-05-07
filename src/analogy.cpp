@@ -3,11 +3,10 @@
 #include <limits>
 
 Analogy::Analogy(Mesh aPrime, Mesh b, bool sphereDeform)
-    : m_aPrime(aPrime), m_b(b), m_bPrime(b), m_aPrimeCache(aPrime), m_bCache(b),
-    m_computeTargetNormalsFunc(sphereDeform ? &Analogy::computeTargetNormalsMapping : &Analogy::computeTargetNormalsSnapping)
-{
-    this->m_tessellatedSphereNormals = this->m_aPrimeCache.computeFaceNormals().transpose();
-}
+    : m_aPrime(aPrime), m_b(b), m_bPrime(b), m_aPrimeCache(aPrime), m_bCache(b), m_tessellatedSphereNormals(m_aPrimeCache.computeFaceNormals().transpose()),
+    m_computeTargetNormalsFunc(sphereDeform ? &Analogy::computeTargetNormalsMapping : &Analogy::computeTargetNormalsSnapping),
+    m_prevFrameAPrimeVerts(aPrime.getVertices()), m_prevFrameBPrimeVerts(b.getVertices())
+    {}
 
 void Analogy::computeBPrime(float lambda)
 {
@@ -250,4 +249,9 @@ std::unique_ptr<Eigen::SimplicialLDLT<Eigen::SparseMatrix<float>>> Analogy::buil
     solver->compute(L);
     // assert(solver->info()==Success);
     return solver;
+}
+
+void Analogy::undo() {
+    m_aPrime.setVertices(m_prevFrameAPrimeVerts);
+    m_bPrime.setVertices(m_prevFrameBPrimeVerts);
 }

@@ -25,6 +25,9 @@ public:
     void setBPrime(Mesh mesh) { this->m_bPrime = mesh; }
     Mesh& getAPrimeCache() { return this->m_aPrimeCache; }
 
+    void undo();
+    void setPrevFrameBPrimeVerts(MatrixXf& verts) { this->m_prevFrameBPrimeVerts = verts; }
+    void setPrevFrameAPrimeVerts(MatrixXf& verts) { this->m_prevFrameAPrimeVerts = verts; }
 private:
     Eigen::MatrixXf computeTargetNormalsMapping();
     Eigen::MatrixXf computeTargetNormalsSnapping();
@@ -38,6 +41,9 @@ private:
     Mesh m_b;
     Mesh m_aPrimeCache;
     Mesh m_bCache;
+    Eigen::MatrixXf m_prevFrameAPrimeVerts;
+    Eigen::MatrixXf m_prevFrameBPrimeVerts;
+
     Eigen::MatrixXf m_tessellatedSphereNormals;
     Eigen::MatrixXf (Analogy::*m_computeTargetNormalsFunc)();
 };
